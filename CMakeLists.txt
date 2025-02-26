@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # set(CMAKE_SKIP_RPATH TRUE)
 
 option(OPT_BUILD_RENAME_FILES "Build the file renaming utility" ON)
-option(OPT_BUILD_CHANGE_PRODUCT "Change the Garmin product in the FIT file" OFF)
+option(OPT_BUILD_CHANGE_PRODUCT "Change the Garmin product in the FIT file" ON)
 option(OPT_BUILD_POINTS_VISITED "Check if the point was visited by activities tracks" ON)
 
 get_filename_component(GARMIN_SDK_CPP "../FitSDKRelease_21.158.00/cpp" ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}")

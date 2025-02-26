@@ -10,10 +10,13 @@ include_directories("rename-files")
 
 add_subdirectory("directory-scanner")
 
+if (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_CHANGE_PRODUCT)
+    add_subdirectory("parsers")
+endif (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_CHANGE_PRODUCT)
+
 if (OPT_BUILD_POINTS_VISITED)
     add_subdirectory("command-args")
     add_subdirectory("coordinates")
-    add_subdirectory("parsers")
     add_subdirectory("points-visited")
     add_executable(garmin-points-visited garmin-points-visited.cpp)
     target_link_libraries(garmin-points-visited command-args coordinates directory-scanner points-visited parsers garmin-sdk-cpp)
@@ -24,3 +27,8 @@ if (OPT_BUILD_RENAME_FILES)
     add_executable(garmin-rename-files garmin-rename-files.cpp)
     target_link_libraries(garmin-rename-files directory-scanner rename-files garmin-sdk-cpp)
 endif (OPT_BUILD_RENAME_FILES)
+
+if (OPT_BUILD_CHANGE_PRODUCT)
+    add_executable(garmin-change-product garmin-change-product.cpp)
+    target_link_libraries(garmin-change-product parsers garmin-sdk-cpp)
+endif (OPT_BUILD_CHANGE_PRODUCT)
