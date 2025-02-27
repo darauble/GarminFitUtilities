@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <fstream>
 
+#include <fit_crc.hpp>
+
 namespace darauble {
 
 BinaryMapper::BinaryMapper(const fs::path& filename) :
@@ -22,6 +24,7 @@ BinaryMapper::BinaryMapper(const fs::path& filename) :
 
     // Read file contents into the allocated buffer
     file.read(reinterpret_cast<char*>(binaryData.get()), binarySize);
+    
     if (!file) {
         throw std::runtime_error("Error: Failed to read file " + filename.string());
     }
@@ -202,14 +205,9 @@ void BinaryMapper::parseData() {
             std::cout << std::dec << std::setw(0) << std::setfill(' ') << std::endl << std::endl;
 
             offset += d.messageSize;
-            std::cout<< std::hex << std::setw(2) << std::setfill('0') <<  +binaryData[offset] << " " << std::endl;
-            
-            std::cout << std::dec << std::setw(0) << std::setfill(' ');
 
-            // break;
+            fitDataMessages.push_back(m);
         }
-
-        
     }
 
     dataParsed = true;
@@ -237,6 +235,44 @@ uint16_t BinaryMapper::read(uint64_t &offset, uint8_t architecture) {
 
     offset += 2;
     return value;
+}
+
+void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {
+    if (architecture == 0) {
+        binaryData[offset++] = value & 0xFF;
+        binaryData[offset++] = (value >> 8) & 0xFF;
+    } else {
+        binaryData[offset++] = (value >> 8) & 0xFF;
+        binaryData[offset++] = value & 0xFF;
+    }
+}
+
+uint16_t BinaryMapper::CRC() {
+    uint16_t crc {0};
+
+    for (int i = 0; i < binarySize - 2; i++) {
+        crc = fit::CRC::Get16(crc, binaryData[i]);
+    }
+
+    return crc;
+}
+
+void BinaryMapper::writeCRC() {
+    uint16_t crc = CRC();
+    uint64_t crcOffset = binarySize - 2;
+
+    write(crcOffset, crc, 0);
+}
+
+void BinaryMapper::save(const fs::path& filename) {
+    std::ofstream outFile(filename.string(), std::ios::binary);
+    
+    if (!outFile) {
+        throw std::runtime_error("BinaryMapper error: cannot open file for writing");
+    }
+
+    outFile.write(reinterpret_cast<const char*>(binaryData.get()), binarySize);
+    outFile.close();
 }
 
 } // namespace darauble

@@ -89,9 +89,17 @@ public:
     void parse();
 
     const FitFileHeader& header() const { return fitHeader; }
+    const std::vector<FitDefinitionMessage>& definitions() const { return fitDefinitions; }
+    const std::vector<FitDataMessage>& dataMessages() const { return fitDataMessages; }
 
     uint8_t read(uint64_t &offset);
     uint16_t read(uint64_t &offset, uint8_t architecture);
+
+    void write(uint64_t &offset, uint16_t value, uint8_t architecture);
+
+    uint16_t CRC();
+    void writeCRC();
+    void save(const fs::path& filename);
 };
 
 } // namespace darauble
