@@ -14,7 +14,7 @@ void ProductScanner::record(const FitDefinitionMessage& d, const FitDataMessage&
             if (f.fieldNumber == fit::FileIdMesg::FieldDefNum::Product) {
                 uint64_t offset, recordOffset;
                 offset =  recordOffset = m.offset + f.offset;
-                uint16_t productId = mapper.read(offset, d.architecture);
+                uint16_t productId = mapper.readU16(offset, d.architecture);
 
                 if (productId == FIT_UINT16_INVALID) {
                     continue;
@@ -31,7 +31,7 @@ void ProductScanner::record(const FitDefinitionMessage& d, const FitDataMessage&
             if (f.fieldNumber == fit::DeviceInfoMesg::FieldDefNum::Product) {
                 uint64_t offset, recordOffset;
                 offset =  recordOffset = m.offset + f.offset;
-                uint16_t productId = mapper.read(offset, d.architecture);
+                uint16_t productId = mapper.readU16(offset, d.architecture);
 
                 if (productId == FIT_UINT16_INVALID) {
                     continue;
@@ -47,7 +47,6 @@ void ProductScanner::record(const FitDefinitionMessage& d, const FitDataMessage&
 }
 
 void ProductScanner::reset() {
-    std::cout << "ProductScanner::reset" << std::endl;
     productIdOffsets.clear();
 }
 

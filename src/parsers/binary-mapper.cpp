@@ -81,7 +81,7 @@ void BinaryMapper::parseData() {
             d.offset = recordOffset;
             offset++; // Skip the reserved byte
             d.architecture = read(offset);
-            d.globalMessageNumber = read(offset, d.architecture);
+            d.globalMessageNumber = readU16(offset, d.architecture);
             d.localMessageNumber = recordHeader & NORMAL_LOCAL_MASK;
             d.fieldCount = read(offset);
             d.messageSize = 0;
@@ -93,8 +93,8 @@ void BinaryMapper::parseData() {
                 << "    Arch #" << +d.architecture << std::endl
                 ;
 
-            std::cout << " +----------- Fields " << std::setw(4) << +d.fieldCount << " --------------+" << d.fieldCount << std::endl;
-            std::cout << " | Number | Size | Arch | Base | Offset |" << std::endl;
+            std::cout << " +--------------- Fields " << std::setw(4) << +d.fieldCount << " ------------------+" << d.fieldCount << std::endl;
+            std::cout << " | Number | Size | Arch | Base | Base+ | Offset |" << std::endl;
 
             for (uint8_t i = 0; i < d.fieldCount; i++) {
                 FitFieldDefinition f;
@@ -104,6 +104,7 @@ void BinaryMapper::parseData() {
                 f.baseType = read(offset);
 
                 f.endianAbility = (f.baseType & FIELD_ENDIAN_MASK) > 1;
+                uint8_t orig_base = f.baseType;
                 f.baseType &= FIELD_BASE_MASK;
                 
                 f.offset = 1;
@@ -116,6 +117,7 @@ void BinaryMapper::parseData() {
                     << " | " << std::setw(4) << +f.size
                     << " | " << std::setw(4) << +f.endianAbility
                     << " | " << std::setw(4) << +f.baseType
+                    << " | " << std::setw(5) << +orig_base
                     <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
 
                 d.messageSize += f.size;
@@ -126,7 +128,7 @@ void BinaryMapper::parseData() {
             if ((recordHeader & DEV_DATA_MASK) > 0) {
                 d.devFieldCount = read(offset);
 
-                std::cout << " |--------- Dev Fields " << std::setw(4) << d.fieldCount << " --------------|" << d.devFieldCount << std::endl;
+                std::cout << " |------------- Dev Fields " << std::setw(4) << d.fieldCount << " ------------------|" << d.devFieldCount << std::endl;
 
                 for (uint8_t i = 0; i < d.devFieldCount; i++) {
                     FitFieldDefinition f;
@@ -136,6 +138,7 @@ void BinaryMapper::parseData() {
                     f.baseType = read(offset);
     
                     f.endianAbility = f.baseType & FIELD_ENDIAN_MASK;
+                    uint8_t orig_base = f.baseType;
                     f.baseType &= FIELD_BASE_MASK;
                     
                     f.offset = 1;
@@ -144,12 +147,19 @@ void BinaryMapper::parseData() {
                         f.offset += d.fields[i - 1].size;
                     }
 
+                    std::cout << " | " << std::setw(6) << +f.fieldNumber 
+                        << " | " << std::setw(4) << +f.size
+                        << " | " << std::setw(4) << +f.endianAbility
+                        << " | " << std::setw(4) << +f.baseType
+                        << " | " << std::setw(5) << +orig_base
+                        <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
+
                     d.messageSize += f.size;
     
                     d.fields.push_back(f);
                 }
             }
-            std::cout << " +--------------------------------------+" << std::endl;
+            std::cout << " +----------------------------------------------+" << std::endl;
             std::cout << " Total message size: " << +d.messageSize << " bytes" << std::endl << std::endl;
 
             fitDefinitions.push_back(d);
@@ -224,7 +234,7 @@ uint8_t BinaryMapper::read(uint64_t &offset) {
     return binaryData[offset++];
 }
 
-uint16_t BinaryMapper::read(uint64_t &offset, uint8_t architecture) {
+uint16_t BinaryMapper::readU16(uint64_t &offset, uint8_t architecture) {
     uint16_t value = 0;
     
     if (architecture == 0) {
@@ -237,11 +247,38 @@ uint16_t BinaryMapper::read(uint64_t &offset, uint8_t architecture) {
     return value;
 }
 
+uint32_t BinaryMapper::readU32(uint64_t &offset, uint8_t architecture) {
+    uint32_t value = 0;
+    
+    if (architecture == 0) {
+        value = (binaryData[offset + 3] << 24) | (binaryData[offset + 2] << 16) | (binaryData[offset + 1] << 8) | binaryData[offset];
+    } else {
+        value = (binaryData[offset] << 24) | (binaryData[offset + 1] << 16) | (binaryData[offset + 2] << 8) | binaryData[offset + 3];
+    }
+
+    offset += 2;
+    return value;
+}
+
 void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {
     if (architecture == 0) {
         binaryData[offset++] = value & 0xFF;
         binaryData[offset++] = (value >> 8) & 0xFF;
     } else {
+        binaryData[offset++] = (value >> 8) & 0xFF;
+        binaryData[offset++] = value & 0xFF;
+    }
+}
+
+void BinaryMapper::write(uint64_t &offset, uint32_t value, uint8_t architecture) {
+    if (architecture == 0) {
+        binaryData[offset++] = value & 0xFF;
+        binaryData[offset++] = (value >> 8) & 0xFF;
+        binaryData[offset++] = (value >> 16) & 0xFF;
+        binaryData[offset++] = (value >> 24) & 0xFF;
+    } else {
+        binaryData[offset++] = (value >> 24) & 0xFF;
+        binaryData[offset++] = (value >> 16) & 0xFF;
         binaryData[offset++] = (value >> 8) & 0xFF;
         binaryData[offset++] = value & 0xFF;
     }

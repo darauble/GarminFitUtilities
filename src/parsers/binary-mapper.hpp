@@ -93,9 +93,11 @@ public:
     const std::vector<FitDataMessage>& dataMessages() const { return fitDataMessages; }
 
     uint8_t read(uint64_t &offset);
-    uint16_t read(uint64_t &offset, uint8_t architecture);
+    uint16_t readU16(uint64_t &offset, uint8_t architecture);
+    uint32_t readU32(uint64_t &offset, uint8_t architecture);
 
     void write(uint64_t &offset, uint16_t value, uint8_t architecture);
+    void write(uint64_t &offset, uint32_t value, uint8_t architecture);
 
     uint16_t CRC();
     void writeCRC();
