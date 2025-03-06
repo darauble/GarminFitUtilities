@@ -4,18 +4,25 @@
 
 #include "CommandMap.hpp"
 #include "HelpCommand.hpp"
+#include "ProductCommand.hpp"
 #include "TimeStampCommand.hpp"
+
+constexpr auto VERSION = "1.0.0";
 
 using namespace darauble;
 
 int main(int argc, char* argv[]) {
+    std::cout << "Garmin FIT file editor/analyzer version " << VERSION << std::endl;
+
     HelpCommand helpCommand;
+    ProductCommand productCommand;
     TimeStampCommand timeStampCommand;
     
     CliActionMap actionMap = {
         {
             "show", {
                 {"help", helpCommand},
+                {"product", productCommand},
                 {"timestamp", timeStampCommand},
             }
         },
@@ -24,12 +31,11 @@ int main(int argc, char* argv[]) {
                 {"timestamp", timeStampCommand},
             }
         },
-        // {
-        //     "replace", {
-        //         {"help", helpCommand},
-        //         {"timestamp", timeStampCommand},
-        //     }
-        // }
+        {
+            "replace", {
+                {"product", productCommand},
+            }
+        }
     };
 
     helpCommand.setActionMap(actionMap);

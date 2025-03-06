@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 project(garmin-fit-utilities CXX)
 
+set(GARMIN_SDK_DIR_NAME "FitSDKRelease_21.158.00")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # add_compile_options(-fsycl)
@@ -11,10 +13,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 option(OPT_BUILD_EDITOR "Build the file analysis and editing utility" ON)
 option(OPT_BUILD_RENAME_FILES "Build the file renaming utility" ON)
-option(OPT_BUILD_CHANGE_PRODUCT "Change the Garmin product in the FIT file" ON)
 option(OPT_BUILD_POINTS_VISITED "Check if the point was visited by activities tracks" ON)
 
-get_filename_component(GARMIN_SDK_CPP "../FitSDKRelease_21.158.00/cpp" ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}")
+get_filename_component(GARMIN_SDK_CPP "../${GARMIN_SDK_DIR_NAME}/cpp" ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB GARMIN_FIT_SOURCES "${GARMIN_SDK_CPP}/*.cpp")
 add_library(garmin-sdk-cpp SHARED ${GARMIN_FIT_SOURCES})

@@ -16,7 +16,8 @@ struct FitFileHeader {
 };
 
 struct FitFieldDefinition {
-    uint8_t fieldNumber;
+    uint8_t fieldNumber; // Field number as per each message type (fit_<message>_mesg.hpp)
+                        // Don't look at fit_profile.hpp! It has bugs as compared to *_mesg.hpp files!
     uint8_t size;    // Number of bytes
     uint8_t endianAbility;
     uint8_t baseType;
@@ -24,11 +25,11 @@ struct FitFieldDefinition {
 };
 
 struct FitDefinitionMessage {
-    uint64_t offset;
-    // uint8_t reserved;          // Must be 0
+    uint64_t offset; // Where in the file the definition starts 
+    // uint8_t reserved;          // Must be 0, not required, so not used ATM.
     uint8_t architecture;      // 0 = little-endian, 1 = big-endian
-    uint16_t globalMessageNumber;
-    uint16_t localMessageNumber;
+    uint16_t globalMessageNumber; // Given as per Garmin FIT SDK (fit_profile.hpp)
+    uint16_t localMessageNumber; // Local message number in the file
     
     uint8_t fieldCount;
     uint8_t devFieldCount;
@@ -38,18 +39,11 @@ struct FitDefinitionMessage {
     std::vector<FitFieldDefinition> fields;
 };
 
-// struct ParsedDefinition {
-//     uint16_t globalMessageNumber;
-//     std::vector<FitFieldDefinition> fields;
-//     uint8_t totalSize;  // Total size of a single Data Message
-//     uint8_t developerFieldCount; // Number of developer fields
-// };
-
 struct FitDataMessage {
-    uint64_t offset; // Starts at header
-    uint64_t definitionIndex;
-    uint8_t localMessageType;
-    uint8_t compressedTime;
+    uint64_t offset; // Where in the file the message starts.
+    uint64_t definitionIndex; // An index in the vector of FitDefinitionMessage
+    uint8_t localMessageType; // Local message type. NOTE: can be "reused"!
+    uint8_t compressedTime; // Indication if compressed time (offset from full timestamp) is used (> 0).
 };
 
 class BinaryMapper {

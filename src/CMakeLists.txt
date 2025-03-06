@@ -11,9 +11,9 @@ include_directories("rename-files")
 
 add_subdirectory("directory-scanner")
 
-if (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_CHANGE_PRODUCT OR OPT_BUILD_EDITOR)
+if (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_EDITOR)
     add_subdirectory("parsers")
-endif (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_CHANGE_PRODUCT OR OPT_BUILD_EDITOR)
+endif (OPT_BUILD_POINTS_VISITED OR OPT_BUILD_EDITOR)
 
 if (OPT_BUILD_POINTS_VISITED)
     add_subdirectory("command-args")
@@ -28,11 +28,6 @@ if (OPT_BUILD_RENAME_FILES)
     add_executable(garmin-rename-files garmin-rename-files.cpp)
     target_link_libraries(garmin-rename-files directory-scanner rename-files garmin-sdk-cpp)
 endif (OPT_BUILD_RENAME_FILES)
-
-if (OPT_BUILD_CHANGE_PRODUCT)
-    add_executable(garmin-change-product garmin-change-product.cpp)
-    target_link_libraries(garmin-change-product parsers garmin-sdk-cpp)
-endif (OPT_BUILD_CHANGE_PRODUCT)
 
 if (OPT_BUILD_EDITOR)
     add_subdirectory("editor")

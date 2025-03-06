@@ -8,9 +8,13 @@
 #include "single-point.hpp"
 #include "single-summary.hpp"
 
+constexpr auto VERSION = "1.0.0";
+
 using namespace darauble;
 
 int main(int argc, char *argv[]) {
+    std::cout << "Points visited in Garmin FIT files version " << VERSION << std::endl;
+
     CommandArgsParser cargs;
 
     std::cout << std::setprecision(18) << std::defaultfloat;
