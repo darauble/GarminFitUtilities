@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <cstring>
 
 #include <fit_crc.hpp>
 
@@ -102,10 +103,8 @@ void BinaryMapper::parseData() {
                 f.fieldNumber = read(offset);
                 f.size = read(offset);
                 f.baseType = read(offset);
-
-                f.endianAbility = (f.baseType & FIELD_ENDIAN_MASK) > 1;
-                uint8_t orig_base = f.baseType;
-                f.baseType &= FIELD_BASE_MASK;
+                f.endianAbility = f.baseType & FIELD_ENDIAN_MASK;
+                uint8_t short_base = f.baseType & FIELD_BASE_MASK;
                 
                 f.offset = 1;
 
@@ -116,8 +115,8 @@ void BinaryMapper::parseData() {
                 std::cout << " | " << std::setw(6) << +f.fieldNumber 
                     << " | " << std::setw(4) << +f.size
                     << " | " << std::setw(4) << +f.endianAbility
-                    << " | " << std::setw(4) << +f.baseType
-                    << " | " << std::setw(5) << +orig_base
+                    << " | " << std::setw(4) << +short_base
+                    << " | " << std::setw(5) << +f.baseType
                     <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
 
                 d.messageSize += f.size;
@@ -136,10 +135,8 @@ void BinaryMapper::parseData() {
                     f.fieldNumber = read(offset);
                     f.size = read(offset);
                     f.baseType = read(offset);
-    
                     f.endianAbility = f.baseType & FIELD_ENDIAN_MASK;
-                    uint8_t orig_base = f.baseType;
-                    f.baseType &= FIELD_BASE_MASK;
+                    uint8_t short_base = f.baseType & FIELD_BASE_MASK;
                     
                     f.offset = 1;
     
@@ -150,8 +147,8 @@ void BinaryMapper::parseData() {
                     std::cout << " | " << std::setw(6) << +f.fieldNumber 
                         << " | " << std::setw(4) << +f.size
                         << " | " << std::setw(4) << +f.endianAbility
-                        << " | " << std::setw(4) << +f.baseType
-                        << " | " << std::setw(5) << +orig_base
+                        << " | " << std::setw(4) << +short_base
+                        << " | " << std::setw(5) << +f.baseType
                         <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
 
                     d.messageSize += f.size;
@@ -230,8 +227,21 @@ void BinaryMapper::parse() {
     parsed = true;
 }
 
+int8_t BinaryMapper::readS(uint64_t &offset) {
+    return (int8_t)binaryData[offset++];
+}
+
 uint8_t BinaryMapper::read(uint64_t &offset) {
     return binaryData[offset++];
+}
+
+int16_t BinaryMapper::readS16(uint64_t &offset, uint8_t architecture) {
+    uint16_t value = readU16(offset, architecture);
+    int16_t sValue;
+
+    memcpy(&sValue, &value, sizeof(sValue));
+    
+    return sValue;
 }
 
 uint16_t BinaryMapper::readU16(uint64_t &offset, uint8_t architecture) {
@@ -247,6 +257,15 @@ uint16_t BinaryMapper::readU16(uint64_t &offset, uint8_t architecture) {
     return value;
 }
 
+int32_t BinaryMapper::readS32(uint64_t &offset, uint8_t architecture) {
+    uint32_t value = readU32(offset, architecture);
+    int32_t sValue;
+
+    memcpy(&sValue, &value, sizeof(sValue));
+    
+    return sValue;
+}
+
 uint32_t BinaryMapper::readU32(uint64_t &offset, uint8_t architecture) {
     uint32_t value = 0;
     
@@ -258,6 +277,50 @@ uint32_t BinaryMapper::readU32(uint64_t &offset, uint8_t architecture) {
 
     offset += 2;
     return value;
+}
+
+int64_t BinaryMapper::readS64(uint64_t &offset, uint8_t architecture) {
+    uint64_t value = readU64(offset, architecture);
+    int64_t sValue;
+
+    memcpy(&sValue, &value, sizeof(sValue));
+    
+    return sValue;
+}
+
+uint64_t BinaryMapper::readU64(uint64_t &offset, uint8_t architecture) {
+    uint64_t value = 0;
+    
+    if (architecture == 0) {
+        value = 
+            ((uint64_t)binaryData[offset + 7] << 56) | ((uint64_t)binaryData[offset + 6] << 48) | ((uint64_t)binaryData[offset + 5] << 40) | ((uint64_t)binaryData[offset + 4] << 32)
+            | (binaryData[offset + 3] << 24) | (binaryData[offset + 2] << 16) | (binaryData[offset + 1] << 8) | binaryData[offset];
+    } else {
+        value = 
+        ((uint64_t)binaryData[offset] << 56) | ((uint64_t)binaryData[offset + 1] << 48) | ((uint64_t)binaryData[offset + 2] << 40) | ((uint64_t)binaryData[offset + 3] << 32)
+        | (binaryData[offset + 4] << 24) | (binaryData[offset + 5] << 16) | (binaryData[offset + 6] << 8) | binaryData[offset + 7];
+    }
+
+    offset += 2;
+    return value;
+}
+
+float BinaryMapper::readFloat(uint64_t &offset, uint8_t architecture) {
+    uint32_t value = readU32(offset, architecture);
+    float fValue;
+
+    memcpy(&fValue, &value, sizeof(fValue));
+    
+    return fValue;
+}
+
+double BinaryMapper::readDouble(uint64_t &offset, uint8_t architecture) {
+    uint64_t value = readU64(offset, architecture);
+    double dValue;
+
+    memcpy(&dValue, &value, sizeof(dValue));
+    
+    return dValue;
 }
 
 void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {

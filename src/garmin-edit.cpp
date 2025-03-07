@@ -4,6 +4,7 @@
 
 #include "CommandMap.hpp"
 #include "HelpCommand.hpp"
+#include "MessageCommand.hpp"
 #include "ProductCommand.hpp"
 #include "TimeStampCommand.hpp"
 
@@ -15,6 +16,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Garmin FIT file editor/analyzer version " << VERSION << std::endl;
 
     HelpCommand helpCommand;
+    MessageCommand messageCommand;
     ProductCommand productCommand;
     TimeStampCommand timeStampCommand;
     
@@ -22,6 +24,7 @@ int main(int argc, char* argv[]) {
         {
             "show", {
                 {"help", helpCommand},
+                {"message", messageCommand},
                 {"product", productCommand},
                 {"timestamp", timeStampCommand},
             }

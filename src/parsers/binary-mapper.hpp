@@ -86,9 +86,16 @@ public:
     const std::vector<FitDefinitionMessage>& definitions() const { return fitDefinitions; }
     const std::vector<FitDataMessage>& dataMessages() const { return fitDataMessages; }
 
+    int8_t readS(uint64_t &offset);
     uint8_t read(uint64_t &offset);
+    int16_t readS16(uint64_t &offset, uint8_t architecture);
     uint16_t readU16(uint64_t &offset, uint8_t architecture);
+    int32_t readS32(uint64_t &offset, uint8_t architecture);
     uint32_t readU32(uint64_t &offset, uint8_t architecture);
+    int64_t readS64(uint64_t &offset, uint8_t architecture);
+    uint64_t readU64(uint64_t &offset, uint8_t architecture);
+    float readFloat(uint64_t &offset, uint8_t architecture);
+    double readDouble(uint64_t &offset, uint8_t architecture);
 
     void write(uint64_t &offset, uint16_t value, uint8_t architecture);
     void write(uint64_t &offset, uint32_t value, uint8_t architecture);
