@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <fit_profile.hpp>
+
 namespace darauble {
 
 void PrintScanner::printHeader(const FitDefinitionMessage& d) {
@@ -22,7 +24,16 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
     oss1 << "+";
     oss2 << "|";
 
-    std::cout << "====  Message #" << d.globalMessageNumber << "  ====" << std::endl;
+    auto messageMeta = fit::Profile::GetMesg(d.globalMessageNumber);
+
+    std::cout << "====  Message #" << d.globalMessageNumber;
+
+    if (messageMeta) {
+        std::cout << " (" << messageMeta->name << ")";
+    }
+
+    std::cout << "  ====" << std::endl;
+    
     std::cout << oss1.str() << std::endl;
     std::cout << oss2.str() << std::endl;
     std::cout << oss1.str() << std::endl;
