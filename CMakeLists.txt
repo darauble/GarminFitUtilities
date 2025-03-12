@@ -14,7 +14,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 option(OPT_BUILD_EDITOR "Build the file analysis and editing utility" ON)
 option(OPT_BUILD_RENAME_FILES "Build the file renaming utility" ON)
 option(OPT_BUILD_POINTS_VISITED "Check if the point was visited by activities tracks" ON)
-option(OPT_BUILD_PROFILE_TO_JSON "Convert TSV format Garmin messages description to JSON" ON)
 
 get_filename_component(GARMIN_SDK_CPP "../${GARMIN_SDK_DIR_NAME}/cpp" ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -23,11 +22,5 @@ add_library(garmin-sdk-cpp SHARED ${GARMIN_FIT_SOURCES})
 set_target_properties(garmin-sdk-cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 include_directories(${GARMIN_SDK_CPP})
-
-if (OPT_BUILD_PROFILE_TO_JSON)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(JSONCPP REQUIRED jsoncpp)
-    include_directories(${JSONCPP_INCLUDE_DIRS})
-endif (OPT_BUILD_PROFILE_TO_JSON)
 
 add_subdirectory("src")

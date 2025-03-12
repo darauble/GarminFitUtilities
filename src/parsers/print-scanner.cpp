@@ -1,5 +1,6 @@
 #include "print-scanner.hpp"
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -10,21 +11,28 @@ namespace darauble {
 
 void PrintScanner::printHeader(const FitDefinitionMessage& d) {
     std::ostringstream oss1, oss2;
+    auto messageMeta = fit::Profile::GetMesg(d.globalMessageNumber);
 
     for (auto field : d.fields) {
+        auto fieldMeta = fit::Profile::GetField(d.globalMessageNumber, field.fieldNumber);
+        std::ostringstream ossFieldName;
+        ossFieldName << (fieldMeta ? fieldMeta->name : "") << " " << +field.fieldNumber;
+        int width {0};
+
         if (field.baseType != FIT_BASE_TYPE_STRING) {
-            oss1 << "+-" << std::setw(FIT_TYPE_WIDTH.at(field.baseType)) << std::setfill('-') << "-" << "-";
-            oss2 << "| " << std::setw(FIT_TYPE_WIDTH.at(field.baseType)) << std::setfill(' ') << +field.fieldNumber << " ";
+            width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(FIT_TYPE_WIDTH.at(field.baseType)));
         } else {
-            oss1 << "|-" << std::setw(field.size) << std::setfill('-') << "-" << "-";
-            oss2 << "| " << std::setw(field.size) << std::setfill(' ') << +field.fieldNumber << " ";
+            width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(field.size));
         }
+        
+        oss1 << "+-" << std::setw(width) << std::setfill('-') << "-" << "-";
+        oss2 << "| " << std::setw(width) << std::setfill(' ') << ossFieldName.str() << " ";
+
+        lastFieldWidths.push_back(width);
     }
 
     oss1 << "+";
     oss2 << "|";
-
-    auto messageMeta = fit::Profile::GetMesg(d.globalMessageNumber);
 
     std::cout << "====  Message #" << d.globalMessageNumber;
 
@@ -44,68 +52,69 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
 void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMessage& m) {
     std::ostringstream oss;
 
-    
+    size_t i = 0;
+
     for (auto field : d.fields) {
         uint64_t offset = m.offset + field.offset;
+        oss << "| " << std::setw(lastFieldWidths[i++]) << std::setfill(' ');
 
-        if (field.baseType != FIT_BASE_TYPE_STRING) {
-            oss << "| " << std::setw(FIT_TYPE_WIDTH.at(field.baseType)) << std::setfill(' ');
+        switch (field.baseType) {
+            case FIT_BASE_TYPE_ENUM:
+            case FIT_BASE_TYPE_BYTE:
+            case FIT_BASE_TYPE_UINT8:
+            case FIT_BASE_TYPE_UINT8Z:
+                oss << +mapper.read(offset);
+                break;
+            
+            case FIT_BASE_TYPE_SINT8:
+                oss << +mapper.readS(offset);
+                break;
+            
+            case FIT_BASE_TYPE_UINT16:
+            case FIT_BASE_TYPE_UINT16Z:
+                oss << mapper.readU16(offset, d.architecture);
+                break;
 
-            switch (field.baseType) {
-                case FIT_BASE_TYPE_ENUM:
-                case FIT_BASE_TYPE_BYTE:
-                case FIT_BASE_TYPE_UINT8:
-                case FIT_BASE_TYPE_UINT8Z:
-                    oss << +mapper.read(offset);
-                    break;
-                
-                case FIT_BASE_TYPE_SINT8:
-                    oss << +mapper.readS(offset);
-                    break;
-                
-                case FIT_BASE_TYPE_UINT16:
-                case FIT_BASE_TYPE_UINT16Z:
-                    oss << mapper.readU16(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_SINT16:
+                oss << mapper.readS16(offset, d.architecture);
+                break;
 
-                case FIT_BASE_TYPE_SINT16:
-                    oss << mapper.readS16(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_UINT32:
+            case FIT_BASE_TYPE_UINT32Z:
+                oss << mapper.readU32(offset, d.architecture);
+                break;
 
-                case FIT_BASE_TYPE_UINT32:
-                case FIT_BASE_TYPE_UINT32Z:
-                    oss << mapper.readU32(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_SINT32:
+                oss << mapper.readS32(offset, d.architecture);
+                break;
 
-                case FIT_BASE_TYPE_SINT32:
-                    oss << mapper.readS32(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_FLOAT32:
+                oss << mapper.readFloat(offset, d.architecture);
+                break;
+            
+            case FIT_BASE_TYPE_FLOAT64:
+                oss << mapper.readDouble(offset, d.architecture);
+                break;
 
-                case FIT_BASE_TYPE_FLOAT32:
-                    oss << mapper.readFloat(offset, d.architecture);
-                    break;
-                
-                case FIT_BASE_TYPE_FLOAT64:
-                    oss << mapper.readDouble(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_UINT64:
+                oss << mapper.readU64(offset, d.architecture);
+                break;
 
-                case FIT_BASE_TYPE_UINT64:
-                    oss << mapper.readU64(offset, d.architecture);
-                    break;
+            case FIT_BASE_TYPE_SINT64:
+                oss << mapper.readS64(offset, d.architecture);
+                break;
+            
+            case FIT_BASE_TYPE_STRING: {
+                    std::string extractedString(reinterpret_cast<const char*>(&mapper.data()[offset]), field.size);
+                    oss << extractedString.c_str();
+                }
+                break;
 
-                case FIT_BASE_TYPE_SINT64:
-                    oss << mapper.readS64(offset, d.architecture);
-                    break;
-
-                default:
-                    oss << "???";
-                    break;
-            }
-            oss << " ";
-        } else {
-            std::string extractedString(reinterpret_cast<const char*>(&mapper.data()[offset]), field.size);
-            oss << "| "  << std::setfill(' ') << std::setw(field.size) << extractedString.c_str() << " ";
+            default:
+                oss << "???";
+                break;
         }
+        oss << " ";
     }
 
     oss << "|";
@@ -122,6 +131,8 @@ void PrintScanner::record(const FitDefinitionMessage& d, const FitDataMessage& m
         if (lastMessageHeader.length() > 0) {
             std::cout << lastMessageHeader << std::endl << std::endl;
         }
+        
+        lastFieldWidths.clear();
         printHeader(d);
         lastGlobalMessageNumber = d.globalMessageNumber;
     }

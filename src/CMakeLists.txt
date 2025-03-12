@@ -34,8 +34,3 @@ if (OPT_BUILD_EDITOR)
     add_executable(garmin-edit garmin-edit.cpp)
     target_link_libraries(garmin-edit editor parsers garmin-sdk-cpp)
 endif(OPT_BUILD_EDITOR)
-
-if (OPT_BUILD_PROFILE_TO_JSON)
-    add_executable(garmin-profile-tsv2json garmin-profile-tsv2json.cpp)
-    target_link_libraries(garmin-profile-tsv2json ${JSONCPP_LIBRARIES})
-endif (OPT_BUILD_PROFILE_TO_JSON)

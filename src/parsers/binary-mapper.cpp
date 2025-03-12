@@ -94,7 +94,7 @@ void BinaryMapper::parseData() {
                 << "    Arch #" << +d.architecture << std::endl
                 ;
 
-            std::cout << " +--------------- Fields " << std::setw(4) << +d.fieldCount << " ------------------+" << d.fieldCount << std::endl;
+            std::cout << " +--------------- Fields " << std::setw(4) << +d.fieldCount << " ------------------+" << std::endl;
             std::cout << " | Number | Size | Arch | Base | Base+ | Offset |" << std::endl;
 
             for (uint8_t i = 0; i < d.fieldCount; i++) {

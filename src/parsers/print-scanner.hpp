@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <fit.hpp>
 
@@ -13,6 +14,7 @@ class PrintScanner : public BinaryScanner {
 protected:
     int32_t lastGlobalMessageNumber;
     std::string lastMessageHeader;
+    std::vector<uint16_t> lastFieldWidths;
     std::unordered_set<uint8_t> messageFilter;
     std::unordered_set<uint8_t> fieldFilter;
 
