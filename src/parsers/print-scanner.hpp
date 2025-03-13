@@ -18,6 +18,8 @@ protected:
     std::unordered_set<uint8_t> messageFilter;
     std::unordered_set<uint8_t> fieldFilter;
 
+    bool showOffset;
+
     void printHeader(const FitDefinitionMessage& d);
     void printMessage(const FitDefinitionMessage& d, const FitDataMessage& m);
 public:
@@ -41,8 +43,14 @@ public:
         {FIT_BASE_TYPE_UINT64Z, 20},
     };
 
+    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint8_t>& _messageFilter, const std::unordered_set<uint8_t>& _fieldFilter, bool _showOffset):
+        BinaryScanner(_mapper), messageFilter {_messageFilter},
+        fieldFilter {_fieldFilter}, lastGlobalMessageNumber {-1},
+        lastMessageHeader {""}, showOffset {_showOffset}
+    {}
+
     PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint8_t>& _messageFilter, const std::unordered_set<uint8_t>& _fieldFilter) :
-        BinaryScanner(_mapper), messageFilter {_messageFilter}, fieldFilter {_fieldFilter}, lastGlobalMessageNumber {-1}, lastMessageHeader {""}
+        PrintScanner(_mapper, _messageFilter, _fieldFilter, false)
     {}
 
     virtual void reset() override;

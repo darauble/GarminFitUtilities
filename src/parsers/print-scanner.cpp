@@ -24,6 +24,10 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
         } else {
             width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(field.size));
         }
+
+        if (showOffset) {
+            width = std::max(width, 10);
+        }
         
         oss1 << "+-" << std::setw(width) << std::setfill('-') << "-" << "-";
         oss2 << "| " << std::setw(width) << std::setfill(' ') << ossFieldName.str() << " ";
@@ -50,13 +54,22 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
 }
 
 void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMessage& m) {
-    std::ostringstream oss;
+    std::ostringstream oss, ossOffset;
 
     size_t i = 0;
 
     for (auto field : d.fields) {
         uint64_t offset = m.offset + field.offset;
-        oss << "| " << std::setw(lastFieldWidths[i++]) << std::setfill(' ');
+        uint16_t fieldWidth = lastFieldWidths[i++];
+        
+        if (showOffset) {
+            std::ostringstream ossAtOffset;
+            ossAtOffset << "@" << offset;
+            ossOffset << "| " << std::setw(fieldWidth) << std::setfill(' ')
+                << ossAtOffset.str().c_str() << " ";
+        }
+
+        oss << "| " << std::setw(fieldWidth) << std::setfill(' ');
 
         switch (field.baseType) {
             case FIT_BASE_TYPE_ENUM:
@@ -117,8 +130,15 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
         oss << " ";
     }
 
+    if (showOffset) {
+        ossOffset << "|";
+    }
+
     oss << "|";
 
+    if (showOffset) {
+        std::cout << ossOffset.str() << std::endl;
+    }
     std::cout << oss.str() << std::endl;
 }
 
