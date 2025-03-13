@@ -27,9 +27,12 @@ void BinaryScanner::scan() {
         record(mapper.definitions()[m.definitionIndex], m);
         
         if (stopFlag) {
+            end();
             break;
         }
     }
+
+    end();
 }
 
 void BinaryScanner::stop() {

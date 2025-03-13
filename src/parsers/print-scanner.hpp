@@ -47,6 +47,7 @@ public:
 
     virtual void reset() override;
     virtual void record(const FitDefinitionMessage& d, const FitDataMessage& m) override;
+    virtual void end() override;
 
     // const std::unordered_set<uint8_t>& messageFilter() const {
     //     return messageFilter;

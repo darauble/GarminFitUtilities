@@ -3,12 +3,14 @@
 #include "binary-scanner.hpp"
 
 #include <fit_profile.hpp>
+#include <string>
 #include <vector>
 
 namespace darauble {
 
 struct timestampId {
     const FitDefinitionMessage& definition;
+    std::string fieldName;
     uint64_t offset;
 };
 

@@ -145,4 +145,10 @@ void PrintScanner::reset() {
     lastGlobalMessageNumber = -1;
 }
 
+void PrintScanner::end() {
+    if (lastMessageHeader.length() > 0) {
+        std::cout << lastMessageHeader << std::endl;
+    }
+}
+
 } // namespace darauble

@@ -16,6 +16,7 @@ public:
     
     virtual void reset() {};
     virtual void record(const FitDefinitionMessage& d, const FitDataMessage& m);
+    virtual void end() {};
 };
 
 } // namespace darauble

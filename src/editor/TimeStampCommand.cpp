@@ -4,6 +4,8 @@
 #include <cstring>
 #include <iostream>
 
+#include <fit_profile.hpp>
+
 #include "binary-mapper.hpp"
 #include "timestamp-scanner.hpp"
 
@@ -31,12 +33,16 @@ void TimeStampCommand::show(int argc, char* argv[]) {
             std::time_t unixTs {garminTs + 631065600};
             std::tm stdTs = *std::localtime(&unixTs);
 
-            std::cout << "Message #" << ts.definition.globalMessageNumber
-                << ", Garmin timestamp " << garminTs
-                << ", Unix timestamp " << unixTs
+            auto messageMeta = fit::Profile::GetMesg(ts.definition.globalMessageNumber);
+
+            std::cout << "Message #" << std::setw(3) << ts.definition.globalMessageNumber << " "
+                << std::setw(16) << (messageMeta ? messageMeta->name : "")
+                << " " << std::setw(16) << ts.fieldName << ":"
+                << " Garmin " << garminTs
+                << ", Unix " << unixTs
                 // << " timestamp " << mapper.readU32(offset, ts.definition.architecture)
-                << ", local time " << std::put_time(&stdTs, "%Y-%m-%d-%H:%M:%S")
-                << " at offset " << ts.offset << std::endl;
+                << ", local " << std::put_time(&stdTs, "%Y-%m-%d-%H:%M:%S")
+                << " @" << ts.offset << std::endl;
         }
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
