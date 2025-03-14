@@ -8,7 +8,7 @@
 #include "ProductCommand.hpp"
 #include "TimeStampCommand.hpp"
 
-constexpr auto VERSION = "1.0.3";
+constexpr auto VERSION = "1.0.4";
 
 using namespace darauble;
 

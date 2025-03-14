@@ -15,8 +15,8 @@ protected:
     int32_t lastGlobalMessageNumber;
     std::string lastMessageHeader;
     std::vector<uint16_t> lastFieldWidths;
-    std::unordered_set<uint8_t> messageFilter;
-    std::unordered_set<uint8_t> fieldFilter;
+    std::unordered_set<uint16_t> messageFilter;
+    std::unordered_set<uint16_t> fieldFilter;
 
     bool showOffset;
 
@@ -43,13 +43,13 @@ public:
         {FIT_BASE_TYPE_UINT64Z, 20},
     };
 
-    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint8_t>& _messageFilter, const std::unordered_set<uint8_t>& _fieldFilter, bool _showOffset):
+    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter, bool _showOffset):
         BinaryScanner(_mapper), messageFilter {_messageFilter},
         fieldFilter {_fieldFilter}, lastGlobalMessageNumber {-1},
         lastMessageHeader {""}, showOffset {_showOffset}
     {}
 
-    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint8_t>& _messageFilter, const std::unordered_set<uint8_t>& _fieldFilter) :
+    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter) :
         PrintScanner(_mapper, _messageFilter, _fieldFilter, false)
     {}
 
