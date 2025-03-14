@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <format>
 #include <sstream>
 
 #include <fit_profile.hpp>
@@ -69,7 +70,12 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
                 << ossAtOffset.str().c_str() << " ";
         }
 
-        oss << "| " << std::setw(fieldWidth) << std::setfill(' ');
+        oss << "| ";
+
+        if (field.baseType != FIT_BASE_TYPE_STRING) {
+            oss << std::setw(fieldWidth) << std::setfill(' ');
+        }
+        
 
         switch (field.baseType) {
             case FIT_BASE_TYPE_ENUM:
@@ -119,6 +125,17 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
             
             case FIT_BASE_TYPE_STRING: {
                     std::string extractedString(reinterpret_cast<const char*>(&mapper.data()[offset]), field.size);
+
+                    size_t utf8_length = 0;
+                    for (char value : extractedString)
+                    {
+                        if ((value & 0xc0) != 0x80)
+                        {
+                            ++utf8_length;
+                        }
+                    }
+
+                    oss << std::setw(fieldWidth + extractedString.length() - utf8_length) << std::setfill(' ');
                     oss << extractedString.c_str();
                 }
                 break;
