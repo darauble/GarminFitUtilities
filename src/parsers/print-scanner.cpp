@@ -10,7 +10,7 @@
 
 /*
 TODO: 
-  * Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
+  * +Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
   * Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
   * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo).
   * Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
@@ -36,7 +36,12 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
         int width {0};
 
         if (field.baseType != FIT_BASE_TYPE_STRING) {
-            width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(FIT_TYPE_WIDTH.at(field.baseType)));
+            if (!options.raw && fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) {
+                // Date/Time in ISO is 19 chars
+                width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(19));
+            } else {
+                width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(FIT_TYPE_WIDTH.at(field.baseType)));
+            }
         } else {
             width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(field.size));
         }
@@ -75,6 +80,7 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
     size_t i = 0;
 
     for (auto field : d.fields) {
+        auto fieldMeta = fit::Profile::GetField(d.globalMessageNumber, field.fieldNumber);
         uint64_t offset = m.offset + field.offset;
         uint16_t fieldWidth = lastFieldWidths[i++];
         
@@ -115,7 +121,11 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
 
             case FIT_BASE_TYPE_UINT32:
             case FIT_BASE_TYPE_UINT32Z:
-                oss << mapper.readU32(offset, d.architecture);
+                if (!options.raw && fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) {
+                    oss << mapper.readDateTime(offset, d.architecture);
+                } else {
+                    oss << mapper.readU32(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_SINT32:

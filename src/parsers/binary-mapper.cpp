@@ -323,6 +323,18 @@ double BinaryMapper::readDouble(uint64_t &offset, uint8_t architecture) {
     return dValue;
 }
 
+std::string BinaryMapper::readDateTime(uint64_t &offset, uint8_t architecture) {
+    int64_t garminTs = readU32(offset, architecture);
+    std::time_t unixTs {garminTs + 631065600};
+    std::tm stdTs = *std::localtime(&unixTs);
+
+    std::ostringstream oss;
+
+    oss << std::put_time(&stdTs, "%Y-%m-%d %H:%M:%S");
+
+    return oss.str();
+}
+
 void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {
     if (architecture == 0) {
         binaryData[offset++] = value & 0xFF;
