@@ -36,7 +36,7 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
         int width {0};
 
         if (field.baseType != FIT_BASE_TYPE_STRING) {
-            if (!options.raw && fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) {
+            if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                 // Date/Time in ISO is 19 chars
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(19));
             } else {
@@ -121,7 +121,7 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
 
             case FIT_BASE_TYPE_UINT32:
             case FIT_BASE_TYPE_UINT32Z:
-                if (!options.raw && fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) {
+                if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                     oss << mapper.readDateTime(offset, d.architecture);
                 } else {
                     oss << mapper.readU32(offset, d.architecture);
@@ -189,14 +189,14 @@ void PrintScanner::record(const FitDefinitionMessage& d, const FitDataMessage& m
         return;
     }
 
-    if (lastGlobalMessageNumber != d.globalMessageNumber) {
+    if (lastDefinitionIndex != m.definitionIndex) {
         if (lastMessageHeader.length() > 0) {
             std::cout << lastMessageHeader << std::endl << std::endl;
         }
         
         lastFieldWidths.clear();
         printHeader(d);
-        lastGlobalMessageNumber = d.globalMessageNumber;
+        lastDefinitionIndex = m.definitionIndex;
     }
 
     printMessage(d, m);
@@ -204,7 +204,7 @@ void PrintScanner::record(const FitDefinitionMessage& d, const FitDataMessage& m
 
 void PrintScanner::reset() {
     lastMessageHeader = "";
-    lastGlobalMessageNumber = -1;
+    lastDefinitionIndex = -1;
 }
 
 void PrintScanner::end() {

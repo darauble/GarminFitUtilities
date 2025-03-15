@@ -359,6 +359,12 @@ void BinaryMapper::write(uint64_t &offset, uint32_t value, uint8_t architecture)
     }
 }
 
+void BinaryMapper::write(uint64_t &offset, char* value, size_t length) {
+    for (size_t i = 0; i < length; i++) {
+        binaryData[offset++] = value[i];
+    }
+}
+
 uint16_t BinaryMapper::CRC() {
     uint16_t crc {0};
 

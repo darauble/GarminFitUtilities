@@ -19,7 +19,7 @@ class PrintScanner : public BinaryScanner {
 protected:
     PrintScannerOptions &options;
 
-    int32_t lastGlobalMessageNumber;
+    int32_t lastDefinitionIndex;
     std::string lastMessageHeader;
     std::vector<uint16_t> lastFieldWidths;
     std::unordered_set<uint16_t> messageFilter;
@@ -52,7 +52,7 @@ public:
 
     PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter, PrintScannerOptions &_options):
         BinaryScanner(_mapper), messageFilter {_messageFilter},
-        fieldFilter {_fieldFilter}, lastGlobalMessageNumber {-1},
+        fieldFilter {_fieldFilter}, lastDefinitionIndex {-1},
         lastMessageHeader {""}, options {_options}
     {}
 

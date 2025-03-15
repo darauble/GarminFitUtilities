@@ -6,6 +6,7 @@
 #include "HelpCommand.hpp"
 #include "MessageCommand.hpp"
 #include "ProductCommand.hpp"
+#include "RawCommand.hpp"
 #include "TimeStampCommand.hpp"
 
 constexpr auto VERSION = "1.0.4";
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
     HelpCommand helpCommand;
     MessageCommand messageCommand;
     ProductCommand productCommand;
+    RawCommand rawCommand;
     TimeStampCommand timeStampCommand;
     
     CliActionMap actionMap = {
@@ -31,6 +33,7 @@ int main(int argc, char* argv[]) {
         },
         {
             "set", {
+                {"raw", rawCommand},
                 {"timestamp", timeStampCommand},
             }
         },
