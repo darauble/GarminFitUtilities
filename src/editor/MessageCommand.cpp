@@ -17,16 +17,32 @@ void MessageCommand::show(int argc, char* argv[]) {
     }
 
     int argsStart {3};
-    bool showOffset {false};
+    PrintScannerOptions options;
+    PrintScanner::defaultOptions(options);
 
     if (strcmp(argv[3], "help") == 0) {
         help(argc, argv);
         return;
     }
 
-    if ((argc >= 5) && (strcmp(argv[3], "offset") == 0)) {
-        argsStart = 4;
-        showOffset = true;
+    if (argc >= 5) {
+        std::istringstream stream(argv[argsStart]);
+        std::string token;
+        bool foundOptions {false};
+
+        while (std::getline(stream, token, '|')) {
+            if (token == "offset") {
+                foundOptions = true;
+                options.offset = true;
+            } else if (token == "raw") {
+                foundOptions = true;
+                options.raw = true;
+            }
+        }
+
+        if (foundOptions) {
+            argsStart = 4;
+        }       
     }
 
     std::unordered_set<uint16_t> messageFilter;
@@ -60,7 +76,7 @@ void MessageCommand::show(int argc, char* argv[]) {
 
     try {
         BinaryMapper mapper(argv[argsStart]);
-        PrintScanner scanner(mapper, messageFilter, {}, showOffset);
+        PrintScanner scanner(mapper, messageFilter, {}, options);
         scanner.scan();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

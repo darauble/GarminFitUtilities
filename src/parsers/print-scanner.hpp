@@ -10,15 +10,22 @@
 
 namespace darauble {
 
+struct PrintScannerOptions {
+    bool offset;
+    bool raw;
+};
+
 class PrintScanner : public BinaryScanner {
 protected:
+    PrintScannerOptions &options;
+
     int32_t lastGlobalMessageNumber;
     std::string lastMessageHeader;
     std::vector<uint16_t> lastFieldWidths;
     std::unordered_set<uint16_t> messageFilter;
     std::unordered_set<uint16_t> fieldFilter;
 
-    bool showOffset;
+    // bool showOffset;
 
     void printHeader(const FitDefinitionMessage& d);
     void printMessage(const FitDefinitionMessage& d, const FitDataMessage& m);
@@ -43,15 +50,13 @@ public:
         {FIT_BASE_TYPE_UINT64Z, 20},
     };
 
-    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter, bool _showOffset):
+    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter, PrintScannerOptions &_options):
         BinaryScanner(_mapper), messageFilter {_messageFilter},
         fieldFilter {_fieldFilter}, lastGlobalMessageNumber {-1},
-        lastMessageHeader {""}, showOffset {_showOffset}
+        lastMessageHeader {""}, options {_options}
     {}
 
-    PrintScanner(BinaryMapper& _mapper, const std::unordered_set<uint16_t>& _messageFilter, const std::unordered_set<uint16_t>& _fieldFilter) :
-        PrintScanner(_mapper, _messageFilter, _fieldFilter, false)
-    {}
+    static void defaultOptions(PrintScannerOptions &o);
 
     virtual void reset() override;
     virtual void record(const FitDefinitionMessage& d, const FitDataMessage& m) override;

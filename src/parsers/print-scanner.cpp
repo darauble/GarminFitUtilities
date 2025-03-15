@@ -8,7 +8,22 @@
 
 #include <fit_profile.hpp>
 
+/*
+TODO: 
+  * Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
+  * Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
+  * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo).
+  * Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
+  * +Padaryti optionų struktūrą skaneriui.
+  * Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
+*/
+
 namespace darauble {
+
+void PrintScanner::defaultOptions(PrintScannerOptions &o) {
+    o.offset = false;
+    o.raw = false;
+}
 
 void PrintScanner::printHeader(const FitDefinitionMessage& d) {
     std::ostringstream oss1, oss2;
@@ -26,7 +41,7 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(field.size));
         }
 
-        if (showOffset) {
+        if (options.offset) {
             width = std::max(width, 10);
         }
         
@@ -63,7 +78,7 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
         uint64_t offset = m.offset + field.offset;
         uint16_t fieldWidth = lastFieldWidths[i++];
         
-        if (showOffset) {
+        if (options.offset) {
             std::ostringstream ossAtOffset;
             ossAtOffset << "@" << offset;
             ossOffset << "| " << std::setw(fieldWidth) << std::setfill(' ')
@@ -147,13 +162,13 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
         oss << " ";
     }
 
-    if (showOffset) {
+    if (options.offset) {
         ossOffset << "|";
     }
 
     oss << "|";
 
-    if (showOffset) {
+    if (options.offset) {
         std::cout << ossOffset.str() << std::endl;
     }
     std::cout << oss.str() << std::endl;
