@@ -11,7 +11,7 @@
 /*
 TODO: 
   * +Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
-  * Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
+  * +Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
   * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo).
   * Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
@@ -39,6 +39,9 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                 // Date/Time in ISO is 19 chars
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(19));
+            } else if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                // Scaled fields imply they are of double precision by fit::Profile::FIELD
+                width = std::max(static_cast<size_t>(ossFieldName.str().length()),  static_cast<size_t>(FIT_TYPE_WIDTH.at(FIT_BASE_TYPE_FLOAT64)));
             } else {
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(FIT_TYPE_WIDTH.at(field.baseType)));
             }
@@ -112,40 +115,70 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
             
             case FIT_BASE_TYPE_UINT16:
             case FIT_BASE_TYPE_UINT16Z:
-                oss << mapper.readU16(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readU16(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readU16(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_SINT16:
-                oss << mapper.readS16(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readS16(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readS16(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_UINT32:
             case FIT_BASE_TYPE_UINT32Z:
                 if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                     oss << mapper.readDateTime(offset, d.architecture);
+                } else if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readU32(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
                 } else {
                     oss << mapper.readU32(offset, d.architecture);
                 }
                 break;
 
             case FIT_BASE_TYPE_SINT32:
-                oss << mapper.readS32(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readS32(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readS32(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_FLOAT32:
-                oss << mapper.readFloat(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readFloat(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readFloat(offset, d.architecture);
+                }
                 break;
             
             case FIT_BASE_TYPE_FLOAT64:
-                oss << mapper.readDouble(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readDouble(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readDouble(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_UINT64:
-                oss << mapper.readU64(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readU64(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readU64(offset, d.architecture);
+                }
                 break;
 
             case FIT_BASE_TYPE_SINT64:
-                oss << mapper.readS64(offset, d.architecture);
+                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                    oss << (static_cast<double>(mapper.readU64(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
+                } else {
+                    oss << mapper.readS64(offset, d.architecture);
+                }
                 break;
             
             case FIT_BASE_TYPE_STRING: {
