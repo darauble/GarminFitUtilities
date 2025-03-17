@@ -73,6 +73,8 @@ protected:
     bool headerParsed;
     bool dataParsed;
     bool parsed;
+
+    bool showRaw;
 public:
     BinaryMapper(const fs::path& filename);
     ~BinaryMapper() = default;

@@ -10,7 +10,7 @@
 namespace darauble {
 
 BinaryMapper::BinaryMapper(const fs::path& filename) :
-    binarySize {0}, parsed {false}
+    binarySize {0}, parsed {false}, showRaw {false}
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
@@ -73,7 +73,9 @@ void BinaryMapper::parseData() {
         uint64_t recordOffset = offset;
         uint8_t recordHeader = read(offset);
 
-        std::cout << "Record Header: " << +recordHeader << ", " << (recordHeader & TYPE_MASK) << std::endl;
+        if (showRaw) {
+            std::cout << "Record Header: " << +recordHeader << ", " << (recordHeader & TYPE_MASK) << std::endl;
+        }
 
         if ((recordHeader & TYPE_MASK) > 0) {
             // Definition message
@@ -87,15 +89,17 @@ void BinaryMapper::parseData() {
             d.fieldCount = read(offset);
             d.messageSize = 0;
 
-            std::cout << "======================================================" << std::endl;
-            std::cout << "Definition Message: " << std::endl
-                << "  Global #" << d.globalMessageNumber << ", "
-                << "   Local #" << d.localMessageNumber << ", "
-                << "    Arch #" << +d.architecture << std::endl
-                ;
+            if (showRaw) {
+                std::cout << "======================================================" << std::endl;
+                std::cout << "Definition Message: " << std::endl
+                    << "  Global #" << d.globalMessageNumber << ", "
+                    << "   Local #" << d.localMessageNumber << ", "
+                    << "    Arch #" << +d.architecture << std::endl
+                    ;
 
-            std::cout << " +--------------- Fields " << std::setw(4) << +d.fieldCount << " ------------------+" << std::endl;
-            std::cout << " | Number | Size | Arch | Base | Base+ | Offset |" << std::endl;
+                std::cout << " +--------------- Fields " << std::setw(4) << +d.fieldCount << " ------------------+" << std::endl;
+                std::cout << " | Number | Size | Arch | Base | Base+ | Offset |" << std::endl;
+            }
 
             for (uint8_t i = 0; i < d.fieldCount; i++) {
                 FitFieldDefinition f;
@@ -112,12 +116,14 @@ void BinaryMapper::parseData() {
                     f.offset = d.fields[i - 1].offset + d.fields[i - 1].size;
                 }
 
-                std::cout << " | " << std::setw(6) << +f.fieldNumber 
-                    << " | " << std::setw(4) << +f.size
-                    << " | " << std::setw(4) << +f.endianAbility
-                    << " | " << std::setw(4) << +short_base
-                    << " | " << std::setw(5) << +f.baseType
-                    <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
+                if (showRaw) {
+                    std::cout << " | " << std::setw(6) << +f.fieldNumber 
+                        << " | " << std::setw(4) << +f.size
+                        << " | " << std::setw(4) << +f.endianAbility
+                        << " | " << std::setw(4) << +short_base
+                        << " | " << std::setw(5) << +f.baseType
+                        <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
+                }
 
                 d.messageSize += f.size;
 
@@ -127,7 +133,9 @@ void BinaryMapper::parseData() {
             if ((recordHeader & DEV_DATA_MASK) > 0) {
                 d.devFieldCount = read(offset);
 
-                std::cout << " |------------- Dev Fields " << std::setw(4) << d.fieldCount << " ------------------|" << d.devFieldCount << std::endl;
+                if (showRaw) {
+                    std::cout << " |------------- Dev Fields " << std::setw(4) << d.fieldCount << " ------------------|" << d.devFieldCount << std::endl;
+                }
 
                 for (uint8_t i = 0; i < d.devFieldCount; i++) {
                     FitFieldDefinition f;
@@ -144,27 +152,33 @@ void BinaryMapper::parseData() {
                         f.offset += d.fields[i - 1].size;
                     }
 
-                    std::cout << " | " << std::setw(6) << +f.fieldNumber 
-                        << " | " << std::setw(4) << +f.size
-                        << " | " << std::setw(4) << +f.endianAbility
-                        << " | " << std::setw(4) << +short_base
-                        << " | " << std::setw(5) << +f.baseType
-                        <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
+                    if (showRaw) {
+                        std::cout << " | " << std::setw(6) << +f.fieldNumber 
+                            << " | " << std::setw(4) << +f.size
+                            << " | " << std::setw(4) << +f.endianAbility
+                            << " | " << std::setw(4) << +short_base
+                            << " | " << std::setw(5) << +f.baseType
+                            <<" | " << std::setw(6) << +f.offset << " |" << std::endl;
+                    }
 
                     d.messageSize += f.size;
     
                     d.fields.push_back(f);
                 }
             }
-            std::cout << " +----------------------------------------------+" << std::endl;
-            std::cout << " Total message size: " << +d.messageSize << " bytes" << std::endl << std::endl;
+            if (showRaw) {
+                std::cout << " +----------------------------------------------+" << std::endl;
+                std::cout << " Total message size: " << +d.messageSize << " bytes" << std::endl << std::endl;
+            }
 
             fitDefinitions.push_back(d);
 
         } else {
             // Data message
-            std::cout << "======================================================" << std::endl;
-            std::cout << "Data Message: local #";
+            if (showRaw) {
+                std::cout << "======================================================" << std::endl;
+                std::cout << "Data Message: local #";
+            }
 
             FitDataMessage m;
             m.offset = recordOffset;
@@ -172,11 +186,17 @@ void BinaryMapper::parseData() {
             if ((recordHeader & NORMAL_HEADER_MASK) == 0) {
                 m.localMessageType = recordHeader & NORMAL_LOCAL_MASK;
                 m.compressedTime = 0;
-                std::cout << +m.localMessageType << ", ";
+                
+                if (showRaw) {
+                    std::cout << +m.localMessageType << ", ";
+                }
             } else {
                 m.localMessageType = (recordHeader & TS_LOCAL_MASK) >> TS_LOCAL_SHIFT;
                 m.compressedTime = recordHeader & TS_OFFSET_MASK;
-                std::cout << +m.localMessageType << " compressed" << ", ";
+                
+                if (showRaw) {
+                    std::cout << +m.localMessageType << " compressed" << ", ";
+                }
             }
 
 
@@ -198,18 +218,19 @@ void BinaryMapper::parseData() {
 
             FitDefinitionMessage & d = fitDefinitions[m.definitionIndex];
 
-            std::cout << "global #" << d.globalMessageNumber << std::endl;
-
-            std::cout << "| ";
-
-            for (auto i = 0; i < d.fields.size(); i++) {
-                for (auto j = 0; j < d.fields[i].size; j++) {
-                    std::cout<< std::hex << std::setw(2) << std::setfill('0') <<  +binaryData[recordOffset + j + d.fields[i].offset] << " ";
+            if (showRaw) {
+                std::cout << "global #" << d.globalMessageNumber << std::endl;
+                std::cout << "| ";
+            
+                for (auto i = 0; i < d.fields.size(); i++) {
+                    for (auto j = 0; j < d.fields[i].size; j++) {
+                        std::cout<< std::hex << std::setw(2) << std::setfill('0') <<  +binaryData[recordOffset + j + d.fields[i].offset] << " ";
+                    }
+                    std::cout << " | ";
                 }
-                std::cout << " | ";
-            }
 
-            std::cout << std::dec << std::setw(0) << std::setfill(' ') << std::endl << std::endl;
+                std::cout << std::dec << std::setw(0) << std::setfill(' ') << std::endl << std::endl;
+            }
 
             offset += d.messageSize;
 
