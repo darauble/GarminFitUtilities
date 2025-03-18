@@ -14,7 +14,7 @@ TODO:
   * +Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
   * +Jei invalid reikšmė, neversti į kablelinius.
   * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo) - jei matavimo vienetas "s".
-  * Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
+  * +Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
   * Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
 */
@@ -106,11 +106,30 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
             case FIT_BASE_TYPE_BYTE:
             case FIT_BASE_TYPE_UINT8:
             case FIT_BASE_TYPE_UINT8Z:
-                oss << +mapper.read(offset);
+                {
+                    uint8_t value = mapper.read(offset);
+                    bool valid = ((field.baseType == FIT_BASE_TYPE_UINT8) && (value != FIT_UINT8_INVALID))
+                                || ((field.baseType == FIT_BASE_TYPE_UINT8Z) && (value != FIT_UINT8Z_INVALID));
+                    
+
+                    if (valid && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                        oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else {
+                        oss << +value;
+                    }
+                }
                 break;
             
             case FIT_BASE_TYPE_SINT8:
-                oss << +mapper.readS(offset);
+                {
+                    int8_t value = mapper.readS(offset);
+
+                    if ((value != FIT_SINT8_INVALID) && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                        oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else {
+                        oss << +value;
+                    }
+                }
                 break;
             
             case FIT_BASE_TYPE_UINT16:
@@ -205,7 +224,8 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
                 }
                 break;
             
-            case FIT_BASE_TYPE_STRING: {
+            case FIT_BASE_TYPE_STRING:
+                {
                     std::string extractedString(reinterpret_cast<const char*>(&mapper.data()[offset]), field.size);
 
                     size_t utf8_length = 0;
