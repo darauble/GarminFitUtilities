@@ -13,7 +13,7 @@ TODO:
   * +Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
   * +Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
   * +Jei invalid reikšmė, neversti į kablelinius.
-  * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo) - jei matavimo vienetas "s".
+  * +Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo) - jei matavimo vienetas "s".
   * +Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
   * Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
@@ -40,6 +40,9 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                 // Date/Time in ISO is 19 chars
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(19));
+            } else if (!options.raw && (fieldMeta && fieldMeta->units == "s" && fieldMeta->profileType == fit::Profile::Type::Uint32)) {
+                // Hundreds of hours should fit. like 112:03:14.25
+                width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(12));
             } else if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
                 // Scaled fields imply they are of double precision by fit::Profile::FIELD
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()),  static_cast<size_t>(FIT_TYPE_WIDTH.at(FIT_BASE_TYPE_FLOAT64)));
@@ -165,11 +168,12 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
                 {
                     if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
                         oss << mapper.readDateTime(offset, d.architecture);
+                    } else if (!options.raw && (fieldMeta && fieldMeta->units == "s" && fieldMeta->profileType == fit::Profile::Type::Uint32)) {
+                        oss << mapper.readDuration(offset, d.architecture, fieldMeta->scale);
                     } else {
                         uint32_t value = mapper.readU32(offset, d.architecture);
                         bool valid = ((field.baseType == FIT_BASE_TYPE_UINT32) && (value != FIT_UINT32_INVALID))
                             || ((field.baseType == FIT_BASE_TYPE_UINT32Z) && (value != FIT_UINT32Z_INVALID));
-
 
                         if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
                             oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;

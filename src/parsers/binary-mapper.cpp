@@ -356,6 +356,29 @@ std::string BinaryMapper::readDateTime(uint64_t &offset, uint8_t architecture) {
     return oss.str();
 }
 
+std::string BinaryMapper::readDuration(uint64_t &offset, uint8_t architecture, double scale) {
+    uint32_t value = readU32(offset, architecture);
+    double totalSeconds = static_cast<double>(value) / scale;
+    
+    int hours = static_cast<int>(totalSeconds) / 3600;
+    int minutes = (static_cast<int>(totalSeconds) % 3600) / 60;
+    double seconds = totalSeconds - (hours * 3600 + minutes * 60);
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2);
+
+    if (hours > 0) {
+        oss << hours << ":";
+        oss << std::setw(2) << std::setfill('0') << minutes << ":";
+    } else if (minutes > 0) {
+        oss << minutes << ":";
+    }
+
+    oss << std::setw(5) << std::setfill('0') << std::fixed << std::setprecision(2) << seconds;
+
+    return oss.str();
+}
+
 void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {
     if (architecture == 0) {
         binaryData[offset++] = value & 0xFF;

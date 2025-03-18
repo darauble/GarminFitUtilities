@@ -100,6 +100,7 @@ public:
     double readDouble(uint64_t &offset, uint8_t architecture);
 
     std::string readDateTime(uint64_t &offset, uint8_t architecture);
+    std::string readDuration(uint64_t &offset, uint8_t architecture, double scale);
 
     void write(uint64_t &offset, uint16_t value, uint8_t architecture);
     void write(uint64_t &offset, uint32_t value, uint8_t architecture);
