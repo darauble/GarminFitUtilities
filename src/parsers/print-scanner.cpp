@@ -12,7 +12,8 @@
 TODO: 
   * +Rodyti datas gražiu formatu (daryti optional ar ne?.. Gal daryti originalą optional su kokiu "raw")
   * +Paversti skaičius į kablelinius kai yra daliklis ir postūmis (pvz. svoris. Atsižvelgti į "raw")
-  * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo).
+  * +Jei invalid reikšmė, neversti į kablelinius.
+  * Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo) - jei matavimo vienetas "s".
   * Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
   * Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
@@ -99,7 +100,6 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
         if (field.baseType != FIT_BASE_TYPE_STRING) {
             oss << std::setw(fieldWidth) << std::setfill(' ');
         }
-        
 
         switch (field.baseType) {
             case FIT_BASE_TYPE_ENUM:
@@ -115,37 +115,61 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
             
             case FIT_BASE_TYPE_UINT16:
             case FIT_BASE_TYPE_UINT16Z:
-                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
-                    oss << (static_cast<double>(mapper.readU16(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
-                } else {
-                    oss << mapper.readU16(offset, d.architecture);
+                {
+                    uint16_t value = mapper.readU16(offset, d.architecture);
+                    // bool valid = true;
+                    bool valid = ((field.baseType == FIT_BASE_TYPE_UINT16) && (value != FIT_UINT16_INVALID))
+                                || ((field.baseType == FIT_BASE_TYPE_UINT16Z) && (value != FIT_UINT16Z_INVALID));
+
+                    if (valid && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                        oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else {
+                        oss << value;
+                    }
                 }
                 break;
 
             case FIT_BASE_TYPE_SINT16:
-                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
-                    oss << (static_cast<double>(mapper.readS16(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
-                } else {
-                    oss << mapper.readS16(offset, d.architecture);
+                {
+                    int16_t value = mapper.readS16(offset, d.architecture);
+
+                    if ((value != FIT_SINT16_INVALID) && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                        oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else {
+                        oss << value;
+                    }
                 }
                 break;
 
             case FIT_BASE_TYPE_UINT32:
             case FIT_BASE_TYPE_UINT32Z:
-                if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
-                    oss << mapper.readDateTime(offset, d.architecture);
-                } else if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
-                    oss << (static_cast<double>(mapper.readU32(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
-                } else {
-                    oss << mapper.readU32(offset, d.architecture);
+                {
+                    if (!options.raw && ((fieldMeta && fieldMeta->profileType == fit::Profile::Type::DateTime) || (field.fieldNumber == 253))) {
+                        oss << mapper.readDateTime(offset, d.architecture);
+                    } else {
+                        uint32_t value = mapper.readU32(offset, d.architecture);
+                        bool valid = ((field.baseType == FIT_BASE_TYPE_UINT32) && (value != FIT_UINT32_INVALID))
+                            || ((field.baseType == FIT_BASE_TYPE_UINT32Z) && (value != FIT_UINT32Z_INVALID));
+
+
+                        if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                            oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                        } else {
+                            oss << value;
+                        }
+                    }
                 }
                 break;
 
             case FIT_BASE_TYPE_SINT32:
-                if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
-                    oss << (static_cast<double>(mapper.readS32(offset, d.architecture))) / fieldMeta->scale - fieldMeta->offset;
-                } else {
-                    oss << mapper.readS32(offset, d.architecture);
+                {
+                    int32_t value = mapper.readS32(offset, d.architecture);
+
+                    if ((value != FIT_SINT32_INVALID) && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
+                        oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else {
+                        oss << value;
+                    }
                 }
                 break;
 
