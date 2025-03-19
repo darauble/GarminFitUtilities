@@ -183,8 +183,22 @@ BinaryScanner::scan: 13888 data messages
 +-----------------+----------------+------------+----------------+-----------+----------+--------+
 ```
 
-I have a remainig plan for the `message` command:
-* Filter desired field(s) in the message(s) by number/name
+Fields of interest can be filtered too. But only for _one_ message. It would be possible to match messages/fields, but at the moment this is not yet possible - maybe in the future. So for now one can filter _one_ message and filter fields for it:
+
+`garmin-edit show message session "timestamp|start_time" <file name>`
+
+And the result will be the Session message with only those two fields:
+
+```
+Garmin FIT file editor/analyzer version 1.0.5
+BinaryScanner::scan: 8 data messages
+====  Message #18 (session)  ====
++---------------------+---------------------+
+|       timestamp 253 |        start_time 2 |
++---------------------+---------------------+
+| 2025-03-11 15:24:51 | 2025-03-11 15:23:51 |
++---------------------+---------------------+
+```
 
 ### NOTES on Undocumented Messages
 

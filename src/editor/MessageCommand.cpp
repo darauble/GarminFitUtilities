@@ -46,6 +46,7 @@ void MessageCommand::show(int argc, char* argv[]) {
     }
 
     std::unordered_set<uint16_t> messageFilter;
+    std::unordered_set<uint16_t> fieldFilter;
 
     if (argc > argsStart + 1) {
         std::istringstream stream(argv[argsStart++]);
@@ -53,6 +54,10 @@ void MessageCommand::show(int argc, char* argv[]) {
         
 
         while (std::getline(stream, token, '|')) {
+            if (token == "*") {
+                break;
+            }
+
             uint16_t messageNumber {FIT_UINT16_INVALID};
             
             try {
@@ -74,9 +79,47 @@ void MessageCommand::show(int argc, char* argv[]) {
         }
     }
 
+    if (argc > argsStart + 1) {
+        std::istringstream stream(argv[argsStart++]);
+        std::string token;
+        
+        if (messageFilter.size() != 1) {
+            std::cerr << "Field filter can be used only with ONE mesage in the filter!" << std::endl;
+            return;
+        }
+
+        while (std::getline(stream, token, '|')) {
+            if (token == "*") {
+                break;
+            }
+            
+            uint16_t fieldNumber {FIT_UINT16_INVALID};
+
+            try {
+                fieldNumber = std::stoi(token);
+            } catch (...) {
+                // Do nothing
+            }
+
+            if (fieldNumber != FIT_UINT16_INVALID) {
+                fieldFilter.insert(fieldNumber);
+            } else {
+                for (auto &m : fit::Profile::mesgs) {
+                    if (messageFilter.find(m.num) != messageFilter.end()) {
+                        for (uint16_t i = 0; i < m.numFields; i++) {
+                            if (m.fields[i].name == token) {
+                                fieldFilter.insert(m.fields[i].num);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     try {
         BinaryMapper mapper(argv[argsStart]);
-        PrintScanner scanner(mapper, messageFilter, {}, options);
+        PrintScanner scanner(mapper, messageFilter, fieldFilter, options);
         scanner.scan();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

@@ -31,6 +31,10 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
     auto messageMeta = fit::Profile::GetMesg(d.globalMessageNumber);
 
     for (auto field : d.fields) {
+        if (!fieldFilter.empty() && fieldFilter.find(field.fieldNumber) == fieldFilter.end()) {
+            continue;
+        }
+
         auto fieldMeta = fit::Profile::GetField(d.globalMessageNumber, field.fieldNumber);
         std::ostringstream ossFieldName;
         ossFieldName << (fieldMeta ? fieldMeta->name : "") << " " << +field.fieldNumber;
@@ -87,6 +91,10 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
     size_t i = 0;
 
     for (auto field : d.fields) {
+        if (!fieldFilter.empty() && fieldFilter.find(field.fieldNumber) == fieldFilter.end()) {
+            continue;
+        }
+
         auto fieldMeta = fit::Profile::GetField(d.globalMessageNumber, field.fieldNumber);
         uint64_t offset = m.offset + field.offset;
         uint16_t fieldWidth = lastFieldWidths[i++];
