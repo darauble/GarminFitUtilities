@@ -11,8 +11,9 @@
 namespace darauble {
 
 struct PrintScannerOptions {
-    bool offset;
-    bool raw;
+    bool offset;  // Show field's offset in the table
+    bool raw;     // Show raw numerical values of the fields (don't convert dates and scaled fields)
+    bool degrees; // Show coordinates in degrees (all fields that have units as "semicircles")
 };
 
 class PrintScanner : public BinaryScanner {

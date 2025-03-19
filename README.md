@@ -200,6 +200,38 @@ BinaryScanner::scan: 8 data messages
 +---------------------+---------------------+
 ```
 
+Additional option can be used for showing coordinates in degrees, because Garmin uses "semicircles", that are `int32_t` integer representation of the coordinates. One unit equals to approximately 11 mm at the equator - more than sufficient for a casual user.
+
+`garmin-edit show message degrees record "timestamp|position_lat|position_long" <file name>`
+
+Shows:
+
+```
+====  Message #20 (record)  ====
++---------------------+----------------+-----------------+
+|       timestamp 253 | position_lat 0 | position_long 1 |
++---------------------+----------------+-----------------+
+| 2025-02-15 13:58:39 |     13.1576901 |       79.118657 |
+| 2025-02-15 13:58:40 |     13.1576848 |      79.1186541 |
+| 2025-02-15 13:58:41 |     13.1576818 |      79.1186524 |
+| 2025-02-15 13:58:42 |     13.1576773 |      79.1186493 |
+| 2025-02-15 13:58:43 |     13.1576754 |      79.1186485 |
+| 2025-02-15 13:58:44 |     13.1576743 |      79.1186463 |
+| 2025-02-15 13:58:45 |     13.1576728 |      79.1186448 |
+| 2025-02-15 13:58:46 |     13.1576735 |      79.1186452 |
+| 2025-02-15 13:58:47 |     13.1576754 |      79.1186483 |
+| 2025-02-15 13:58:48 |     13.1576753 |      79.1186479 |
+| 2025-02-15 13:58:49 |     13.1576747 |       79.118647 |
+| 2025-02-15 13:58:50 |     13.1576726 |      79.1186481 |
+| 2025-02-15 13:58:51 |     13.1576736 |      79.1186515 |
+| 2025-02-15 13:58:52 |     13.1576753 |      79.1186534 |
+| 2025-02-15 13:58:53 |     13.1576662 |       79.118657 |
+| 2025-02-15 13:58:54 |     13.1576557 |      79.1186585 |
+...
+| 2025-02-15 15:02:43 |     13.1575804 |       79.118584 |
++---------------------+----------------+-----------------+
+```
+
 ### NOTES on Undocumented Messages
 
 There are quite many undocumented messages, that are not described in the FIT Profile. Strangely, message #104 is also not present, but it shows battery percentage decline during the workout in the field #2. Field #0 is the battery voltage (I think):

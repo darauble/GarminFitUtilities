@@ -1,4 +1,5 @@
 #include "print-scanner.hpp"
+#include "convert.hpp"
 
 #include <algorithm>
 #include <iomanip>
@@ -16,7 +17,8 @@ TODO:
   * +Paversti trukmę į valandas/minutes/sekundes (paieškoti algoritmo) - jei matavimo vienetas "s".
   * +Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
-  * Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
+  * +Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
+  * Įsiminti ir rodyti Developer Field pavadinimus
 */
 
 namespace darauble {
@@ -24,6 +26,7 @@ namespace darauble {
 void PrintScanner::defaultOptions(PrintScannerOptions &o) {
     o.offset = false;
     o.raw = false;
+    o.degrees = false;
 }
 
 void PrintScanner::printHeader(const FitDefinitionMessage& d) {
@@ -47,6 +50,8 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             } else if (!options.raw && (fieldMeta && fieldMeta->units == "s" && fieldMeta->profileType == fit::Profile::Type::Uint32)) {
                 // Hundreds of hours should fit. like 112:03:14.25
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()), static_cast<size_t>(12));
+            } else if (options.degrees && (fieldMeta && fieldMeta->units == "semicircles" && fieldMeta->profileType == fit::Profile::Type::Sint32)) {
+                width = std::max(static_cast<size_t>(ossFieldName.str().length()),  static_cast<size_t>(13));
             } else if (!options.raw && (fieldMeta && fieldMeta->scale > 1)) {
                 // Scaled fields imply they are of double precision by fit::Profile::FIELD
                 width = std::max(static_cast<size_t>(ossFieldName.str().length()),  static_cast<size_t>(FIT_TYPE_WIDTH.at(FIT_BASE_TYPE_FLOAT64)));
@@ -198,6 +203,8 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
 
                     if ((value != FIT_SINT32_INVALID) && !options.raw && (fieldMeta && fieldMeta->scale > 1)) {
                         oss << (static_cast<double>(value)) / fieldMeta->scale - fieldMeta->offset;
+                    } else if ((value != FIT_SINT8_INVALID) && options.degrees && (fieldMeta && fieldMeta->units == "semicircles")) {
+                        oss << std::setprecision(9) << fromInt32(value);
                     } else {
                         oss << value;
                     }

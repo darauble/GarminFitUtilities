@@ -37,6 +37,9 @@ void MessageCommand::show(int argc, char* argv[]) {
             } else if (token == "raw") {
                 foundOptions = true;
                 options.raw = true;
+            } else if (token == "degrees") {
+                foundOptions = true;
+                options.degrees = true;
             }
         }
 
@@ -92,7 +95,7 @@ void MessageCommand::show(int argc, char* argv[]) {
             if (token == "*") {
                 break;
             }
-            
+
             uint16_t fieldNumber {FIT_UINT16_INVALID};
 
             try {
