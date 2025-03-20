@@ -4,16 +4,21 @@
 
 #include <cstring>
 
+/*
+TODO:
+  * Sutvarkyti visus tipus, kad juos būtų galima įrašyti.
+*/
+
 namespace darauble {
 
 void RawCommand::set(int argc, char* argv[]) {
-    if (argc == 4 && argv[3] == "help") {
+    if (argc == 4 && (strcmp(argv[3], "help") == 0)) {
         help(argc, argv);
         return;
     }
 
     if (argc != 8) {
-        std::cerr << "Wrong usage of the timestamp command (" << argc << "), see help." << std::endl;
+        std::cerr << "Wrong usage of the raw command (" << argc << "), see help." << std::endl;
         return;
     }
 
