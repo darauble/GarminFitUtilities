@@ -22,6 +22,7 @@ protected:
 
     int32_t lastDefinitionIndex;
     std::string lastMessageHeader;
+    std::string lastTableLine;
     std::vector<uint16_t> lastFieldWidths;
     std::unordered_set<uint16_t> messageFilter;
     std::unordered_set<uint16_t> fieldFilter;

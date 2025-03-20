@@ -19,6 +19,7 @@ TODO:
   * +Padaryti optionų struktūrą skaneriui.
   * +Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
   * Įsiminti ir rodyti Developer Field pavadinimus
+  * +Patikrinti paskutinį spausdintą header'į ir jei jis toks pat – nespausdinti (net jei pasikeitė mesedžiuko aprašymas)
 */
 
 namespace darauble {
@@ -30,7 +31,7 @@ void PrintScanner::defaultOptions(PrintScannerOptions &o) {
 }
 
 void PrintScanner::printHeader(const FitDefinitionMessage& d) {
-    std::ostringstream oss1, oss2;
+    std::ostringstream ossLine, ossHeader;
     auto messageMeta = fit::Profile::GetMesg(d.globalMessageNumber);
 
     for (auto field : d.fields) {
@@ -66,14 +67,24 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             width = std::max(width, 10);
         }
         
-        oss1 << "+-" << std::setw(width) << std::setfill('-') << "-" << "-";
-        oss2 << "| " << std::setw(width) << std::setfill(' ') << ossFieldName.str() << " ";
+        ossLine << "+-" << std::setw(width) << std::setfill('-') << "-" << "-";
+        ossHeader << "| " << std::setw(width) << std::setfill(' ') << ossFieldName.str() << " ";
 
         lastFieldWidths.push_back(width);
     }
 
-    oss1 << "+";
-    oss2 << "|";
+    ossLine << "+";
+    ossHeader << "|";
+
+    if ((fieldFilter.size() > 0) && (lastMessageHeader == ossHeader.str())) {
+        return;
+    }
+
+    if (lastTableLine.length() > 0) {
+        std::cout << lastTableLine << std::endl << std::endl;
+    }
+    
+    lastFieldWidths.clear();
 
     std::cout << "====  Message #" << d.globalMessageNumber;
 
@@ -83,11 +94,12 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
 
     std::cout << "  ====" << std::endl;
     
-    std::cout << oss1.str() << std::endl;
-    std::cout << oss2.str() << std::endl;
-    std::cout << oss1.str() << std::endl;
+    std::cout << ossLine.str() << std::endl;
+    std::cout << ossHeader.str() << std::endl;
+    std::cout << ossLine.str() << std::endl;
 
-    lastMessageHeader = oss1.str();
+    lastMessageHeader = ossHeader.str();
+    lastTableLine = ossLine.str();
 }
 
 void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMessage& m) {
@@ -286,11 +298,6 @@ void PrintScanner::record(const FitDefinitionMessage& d, const FitDataMessage& m
     }
 
     if (lastDefinitionIndex != m.definitionIndex) {
-        if (lastMessageHeader.length() > 0) {
-            std::cout << lastMessageHeader << std::endl << std::endl;
-        }
-        
-        lastFieldWidths.clear();
         printHeader(d);
         lastDefinitionIndex = m.definitionIndex;
     }
@@ -299,13 +306,13 @@ void PrintScanner::record(const FitDefinitionMessage& d, const FitDataMessage& m
 }
 
 void PrintScanner::reset() {
-    lastMessageHeader = "";
+    lastTableLine = "";
     lastDefinitionIndex = -1;
 }
 
 void PrintScanner::end() {
-    if (lastMessageHeader.length() > 0) {
-        std::cout << lastMessageHeader << std::endl;
+    if (lastTableLine.length() > 0) {
+        std::cout << lastTableLine << std::endl;
     }
 }
 
