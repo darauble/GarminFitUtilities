@@ -8,7 +8,7 @@
 #include "single-point.hpp"
 #include "single-summary.hpp"
 
-constexpr auto VERSION = "1.0.0";
+constexpr auto VERSION = "1.1.0";
 
 using namespace darauble;
 

@@ -1,10 +1,8 @@
 #include <map>
 #include <fstream>
 
-#include <fit_decode.hpp>
-#include <fit_mesg_broadcaster.hpp>
-
-#include "coordinates-parser.hpp"
+#include "binary-mapper.hpp"
+#include "coordinates-scanner.hpp"
 #include "single-point.hpp"
 #include "exceptions.hpp"
 
@@ -30,32 +28,9 @@ static std::map<std::string, FIT_SPORT> sport_map = {
 };
 
 void SinglePointHandler::parse(const fs::path& filepath, std::vector<int32_t>& la, std::vector<int32_t>& lo) {
-    fit::Decode decode;
-    fit::MesgBroadcaster broadcaster;
-    SportCoordinatesListener listener {sport, la, lo};
-
-    std::ifstream file(filepath.string(), std::ios::in | std::ios::binary);
-
-    if (!file.is_open()) {
-        throw fit::RuntimeException("Failed to open FIT file.");
-    }
-    
-    if (!decode.CheckIntegrity(file))
-    {
-        std::cerr << "FIT file integrity failed." << std::endl << "Attempting to decode..." << std::endl;
-    }
-
-    // broadcaster.AddListener((fit::FileIdMesgListener&)listener);
-    broadcaster.AddListener((fit::SportMesgListener&)listener);
-    broadcaster.AddListener((fit::RecordMesgListener&)listener);
-
-    // std::cout << std::fixed << std::setprecision(16);
-
-    decode.Read(file, broadcaster);
-    
-    // std::cout << "Found " << listener.GetCounter() << " points." << std::endl;
-
-    file.close();
+    BinaryMapper mapper {filepath};
+    CoordinatesScanner scanner {mapper, sport, la, lo};
+    scanner.scan();
 }
 
 uint32_t SinglePointHandler::search(std::vector<int32_t>& la, std::vector<int32_t>& lo) {
@@ -117,8 +92,6 @@ void SinglePointHandler::handle(const fs::path& filename) {
     } catch (const WrongSportException& e) {
         summary.incrementParsedFiles();
         std::cerr << e.what() << std::endl;
-    } catch (const fit::RuntimeException& e) {
-        std::cerr << "Exception decoding file: " << e.what() << std::endl;
     } catch (...)
     {
         std::cerr << "Exception decoding file" << std::endl;

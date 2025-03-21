@@ -4,7 +4,7 @@ This is a project of a few utilities to tinker with Garmin FIT files. There are 
 
 At the moment utilities are command-line only and tested only on Linux. I keep the code as generic as possible using C++ 20 standard library and nothing from POSIX.
 
-Code is not very well organized and consistent. In one utility I use CLI arguments parser, in others I use raw `argc` and `argv`. I use Garmin FIT SDK event-based parser to retrieve coordinates, but for other needs I implemented my own binary FIT parser, which works with bytes directly at their place to modify the files if needed (and is very fast compared to FIT SDK).
+Code is not very well organized and consistent. In one utility I use CLI arguments parser, in others I use raw `argc` and `argv`. I also originally used Garmin FIT SDK event-based parser to retrieve coordinates, but for other needs I implemented my own binary FIT parser, which works with bytes directly at their place to modify the files if needed (and is very fast compared to FIT SDK). So then I migrated to using my own mappers/scanners framework. All is work in progress :-)
 
 This is a part of my wish to refresh Modern C++ knowledge, so again: not very well organized and some class constructions duplicate the code and are superfluous - but some help to keep the code divided better.
 
@@ -44,6 +44,27 @@ Total visits:   13
 ```
 
 So in the year 2024 I visited one counter just 13 times! Obviously I did more gravel and forest riding than the usual road. And only 94 rides... well, but I have to run, hike/ruck, swim, do lifting and yoga too... time is limited for decathletes :-D
+
+I initially used FIT SDK to parse FIT files and retrieve coordinates. This utility was the first to implement, so I thought using SDK would be best. _WRONG!_ I was surprised at how slow it was :-|
+
+After implementing my own "SDK" and a framework I like myself I decided to migrate coordinates reading using my own semi-raw mapper/scanner (described below). The code is not very elegant, I need way more `if` statements and deeper knowledge of the FIT structure, but boy it runs fast!
+
+Example comparison of how much it takes to parse some FIT files (in seconds and _including_ reading from disk):
+
+| File                    | Points | FIT SDK     | Mapper/Scanner |
+| ----------------------- | ------ | ----------- | -------------- |
+| 2025-03-07-05-12-16.fit | 2144   | 0.033300131 | 0.000976237    |
+| 2025-03-08-05-59-28.fit | 2144   | 0.033640553 | 0.000485185    |
+| 2025-03-12-05-05-20.fit | 2003   | 0.033037443 | 0.00157116     |
+| 2025-03-13-11-04-10.fit | 1429   | 0.021947243 | 0.001335546    |
+| 2025-03-18-06-26-06.fit | 796    | 0.010872027 | 0.000289233    |
+| 2025-03-21-05-48-57.fit | 1754   | 0.025102158 | 0.000687751    |
+
+And yes, I use various dynamic C++ structures, like vectors, not C type malloc/realloc! Those potentially could be even faster if used correctly.
+
+Parsing all my 2024 year (as mentioned above) with FIT SDK took 10 seconds. Using my own parser - _under a second_. That's a _green_ programming for you (less time, less cycles, less energy wasted).
+
+I like being a low level coder (in my professional life).
 
 ## Rename Files
 
