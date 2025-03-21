@@ -11,6 +11,25 @@ TODO:
 
 namespace darauble {
 
+void RawCommand::show(int argc, char* argv[]) {
+    if (argc == 4 && (strcmp(argv[3], "help") == 0)) {
+        help(argc, argv);
+        return;
+    }
+
+    if (argc != 4) {
+        std::cerr << "Wrong usage of the raw command (" << argc << "), see help." << std::endl;
+        return;
+    }
+
+    try {
+        BinaryMapper mapper(argv[3], true);
+        mapper.parse();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+}
+
 void RawCommand::set(int argc, char* argv[]) {
     if (argc == 4 && (strcmp(argv[3], "help") == 0)) {
         help(argc, argv);

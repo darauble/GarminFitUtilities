@@ -9,8 +9,8 @@
 
 namespace darauble {
 
-BinaryMapper::BinaryMapper(const fs::path& filename) :
-    binarySize {0}, parsed {false}, showRaw {false}
+BinaryMapper::BinaryMapper(const fs::path& filename, bool _showRaw) :
+    binarySize {0}, parsed {false}, showRaw {_showRaw}
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
@@ -108,6 +108,7 @@ void BinaryMapper::parseData() {
                 f.size = read(offset);
                 f.baseType = read(offset);
                 f.endianAbility = f.baseType & FIELD_ENDIAN_MASK;
+                f.developer = false;
                 uint8_t short_base = f.baseType & FIELD_BASE_MASK;
                 
                 f.offset = 1;
@@ -134,7 +135,7 @@ void BinaryMapper::parseData() {
                 d.devFieldCount = read(offset);
 
                 if (showRaw) {
-                    std::cout << " |------------- Dev Fields " << std::setw(4) << d.fieldCount << " ------------------|" << d.devFieldCount << std::endl;
+                    std::cout << " |------------- Dev Fields " << std::setw(4) << +d.devFieldCount << " ----------------|" << std::endl;
                 }
 
                 for (uint8_t i = 0; i < d.devFieldCount; i++) {
@@ -144,6 +145,7 @@ void BinaryMapper::parseData() {
                     f.size = read(offset);
                     f.baseType = read(offset);
                     f.endianAbility = f.baseType & FIELD_ENDIAN_MASK;
+                    f.developer = true;
                     uint8_t short_base = f.baseType & FIELD_BASE_MASK;
                     
                     f.offset = 1;

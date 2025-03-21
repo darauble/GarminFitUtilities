@@ -22,6 +22,7 @@ struct FitFieldDefinition {
     uint8_t endianAbility;
     uint8_t baseType;
     uint16_t offset; // Offset from the record start (first starts at 1, 0 is the reacord header byte)
+    bool developer; // Mark if the field is a developer field or not
 };
 
 struct FitDefinitionMessage {
@@ -76,7 +77,7 @@ protected:
 
     bool showRaw;
 public:
-    BinaryMapper(const fs::path& filename);
+    BinaryMapper(const fs::path& filename, bool _showRaw = false);
     ~BinaryMapper() = default;
 
     std::shared_ptr<uint8_t[]> data();

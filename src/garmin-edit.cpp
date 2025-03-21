@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
                 {"help", helpCommand},
                 {"message", messageCommand},
                 {"product", productCommand},
+                {"raw", rawCommand},
                 {"timestamp", timeStampCommand},
             }
         },
