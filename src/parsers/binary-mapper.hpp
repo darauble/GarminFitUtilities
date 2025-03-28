@@ -3,6 +3,9 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <unordered_map>
+
+#include <fit_profile.hpp>
 
 namespace fs = std::filesystem;
 namespace darauble {
@@ -70,6 +73,7 @@ protected:
     FitFileHeader fitHeader;
     std::vector<FitDefinitionMessage> fitDefinitions;
     std::vector<FitDataMessage> fitDataMessages;
+    std::unordered_map<uint16_t, std::unordered_map<uint16_t, fit::Profile::FIELD>> devFieldMeta;
     
     bool headerParsed;
     bool dataParsed;
@@ -89,6 +93,8 @@ public:
     const std::vector<FitDefinitionMessage>& definitions() const { return fitDefinitions; }
     const std::vector<FitDataMessage>& dataMessages() const { return fitDataMessages; }
 
+    const fit::Profile::FIELD *getField(const FitDefinitionMessage& d, FitFieldDefinition &f);
+
     int8_t readS(uint64_t &offset);
     uint8_t read(uint64_t &offset);
     int16_t readS16(uint64_t &offset, uint8_t architecture);
@@ -100,6 +106,7 @@ public:
     float readFloat(uint64_t &offset, uint8_t architecture);
     double readDouble(uint64_t &offset, uint8_t architecture);
 
+    std::string readString(uint64_t &offset, uint8_t length);
     std::string readDateTime(uint64_t &offset, uint8_t architecture);
     std::string readDuration(uint64_t &offset, uint8_t architecture, double scale);
 

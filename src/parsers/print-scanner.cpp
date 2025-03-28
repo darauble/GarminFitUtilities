@@ -18,7 +18,7 @@ TODO:
   * +Padaryti papildomas parinktis kaip filtrą, pvz. offset|raw.
   * +Padaryti optionų struktūrą skaneriui.
   * +Rodyti koordinates įprastu skaitomu formatu (tik su optionu!).
-  * Įsiminti ir rodyti Developer Field pavadinimus
+  * +Įsiminti ir rodyti Developer Field pavadinimus
   * +Patikrinti paskutinį spausdintą header'į ir jei jis toks pat – nespausdinti (net jei pasikeitė mesedžiuko aprašymas)
 */
 
@@ -39,8 +39,13 @@ void PrintScanner::printHeader(const FitDefinitionMessage& d) {
             continue;
         }
 
-        auto fieldMeta = fit::Profile::GetField(d.globalMessageNumber, field.fieldNumber);
+        auto fieldMeta = mapper.getField(d, field);
         std::ostringstream ossFieldName;
+
+        if (field.developer) {
+            ossFieldName << "*";
+        }
+
         ossFieldName << (fieldMeta ? fieldMeta->name : "") << " " << +field.fieldNumber;
         int width {0};
 
@@ -257,7 +262,7 @@ void PrintScanner::printMessage(const FitDefinitionMessage& d, const FitDataMess
             
             case FIT_BASE_TYPE_STRING:
                 {
-                    std::string extractedString(reinterpret_cast<const char*>(&mapper.data()[offset]), field.size);
+                    std::string extractedString = mapper.readString(offset, field.size);
 
                     size_t utf8_length = 0;
                     for (char value : extractedString)

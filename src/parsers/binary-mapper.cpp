@@ -237,6 +237,72 @@ void BinaryMapper::parseData() {
             offset += d.messageSize;
 
             fitDataMessages.push_back(m);
+
+            if (d.globalMessageNumber == FIT_MESG_NUM_FIELD_DESCRIPTION) {
+                if (showRaw) {
+                    std::cout << "Parsing developer field description:" << std::endl;
+                }
+
+                uint64_t dataOffset;
+                fit::Profile::FIELD devFieldDesc;
+                uint16_t nativeMesgNum {0};
+
+                for (auto field : d.fields) {
+                    dataOffset = m.offset + field.offset;
+
+                    switch(field.fieldNumber) {
+                        case 1:
+                            // field_definition_number
+                            devFieldDesc.num = read(dataOffset);
+                            if (showRaw) std::cout << "  num: " << +devFieldDesc.num << std::endl;
+                        break;
+
+                        case 3:
+                            // field_name
+                            devFieldDesc.name = readString(dataOffset, field.size);
+                            if (showRaw) std::cout << "  name: " << devFieldDesc.name << std::endl;
+                        break;
+
+                        case 6:
+                            // scale
+                            devFieldDesc.scale = read(dataOffset);
+
+                            if (devFieldDesc.scale == FIT_UINT8_INVALID) {
+                                devFieldDesc.scale = 1;
+                            }
+
+                            if (showRaw) std::cout << "  scale: " << +devFieldDesc.scale << std::endl;
+                        break;
+                        
+                        case 7:
+                            // offset
+                            devFieldDesc.offset = readS(dataOffset);
+
+                            if (devFieldDesc.offset == FIT_SINT8_INVALID) {
+                                devFieldDesc.offset = 0;
+                            }
+
+                            if (showRaw) std::cout << "  offset: " << +devFieldDesc.offset << std::endl;
+                        break;
+
+                        case 14:
+                            // native_mesg_num
+                            nativeMesgNum = readU16(dataOffset, d.architecture);
+                            if (showRaw) std::cout << "  native_mesg_num: " << nativeMesgNum << std::endl;
+                        break;
+                    }
+                }
+
+                if (!devFieldMeta.contains(nativeMesgNum)) {
+                    devFieldMeta[nativeMesgNum] = std::unordered_map<uint16_t, fit::Profile::FIELD>();
+                }
+
+                if (!devFieldMeta[nativeMesgNum].contains(devFieldDesc.num)) {
+                    devFieldMeta[nativeMesgNum][devFieldDesc.num] = devFieldDesc;
+                } else {
+                    std::cerr << "Error: Duplicate developer field description for message #" << nativeMesgNum << ", field #" << +devFieldDesc.num << std::endl;
+                }
+            }
         }
     }
 
@@ -248,6 +314,20 @@ void BinaryMapper::parse() {
     parseData();
 
     parsed = true;
+}
+
+const fit::Profile::FIELD *BinaryMapper::getField(const FitDefinitionMessage& d, FitFieldDefinition &f) {
+    if (!f.developer) {
+        return fit::Profile::GetField(d.globalMessageNumber, f.fieldNumber);
+    } else {
+        if (devFieldMeta.contains(d.globalMessageNumber)) {
+            if (devFieldMeta[d.globalMessageNumber].contains(f.fieldNumber)) {
+                return &devFieldMeta[d.globalMessageNumber][f.fieldNumber];
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 int8_t BinaryMapper::readS(uint64_t &offset) {
@@ -344,6 +424,25 @@ double BinaryMapper::readDouble(uint64_t &offset, uint8_t architecture) {
     memcpy(&dValue, &value, sizeof(dValue));
     
     return dValue;
+}
+
+std::string BinaryMapper::readString(uint64_t &offset, uint8_t length) {
+    uint64_t stringLength = 0;
+
+    for (stringLength = 0; stringLength < length; stringLength++) {
+        if (binaryData[offset + stringLength] == 0) {
+            break;
+        }
+    }
+
+    if (stringLength > length) {
+        stringLength = length;
+    }
+
+    std::string extractedString(reinterpret_cast<const char*>(&binaryData[offset]), stringLength);
+    offset += length;
+
+    return extractedString;
 }
 
 std::string BinaryMapper::readDateTime(uint64_t &offset, uint8_t architecture) {
