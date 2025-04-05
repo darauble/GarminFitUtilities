@@ -264,6 +264,33 @@ Shows:
 +---------------------+----------------+-----------------+
 ```
 
+### Listing Activities
+
+A separate part, currently under development and still in rudimentary state, is a command `garmin-edit show activities <directory|file>`.
+
+It either recursively scans a given directory or just parses one file and provides a (currently very basic) table with found activities:
+
+```
+Found 78 activities.
++-------------------------+---------------+-------------------+
+|               File Name | Activity Name |             Sport |
++-------------------------+---------------+-------------------+
+| 2025-03-01-07-36-02.fit |        Ėjimas |           WALKING |
+| 2025-03-01-21-15-14.fit |     Stopwatch |         STOPWATCH |
+| 2025-03-02-19-15-43.fit |          Jėga | STRENGTH_TRAINING |
+| 2025-03-03-06-43-56.fit |       Bėgimas |           RUNNING |
+| 2025-03-03-12-16-32.fit |          Joga |              YOGA |
+| 2025-03-03-15-22-37.fit |        Ėjimas |           WALKING |
+| 2025-03-03-19-02-06.fit |     Stopwatch |         STOPWATCH |
+| 2025-03-04-06-34-20.fit |       Bėgimas |           RUNNING |
+...
+| 2025-03-31-15-41-24.fit |        Ėjimas |           WALKING |
+| 2025-03-31-18-07-20.fit |     Stopwatch |         STOPWATCH |
++-------------------------+---------------+-------------------+
+```
+
+With time I'll include more details here, similar to the `Activities > All Activities` in the Garmin Connect.
+
 ### NOTES on Undocumented Messages
 
 There are quite many undocumented messages, that are not described in the FIT Profile. Strangely, message #104 is also not present, but it shows battery percentage decline during the workout in the field #2. Field #0 is the battery voltage (I think):

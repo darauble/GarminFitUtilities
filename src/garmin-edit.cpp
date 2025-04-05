@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 
+#include "ActivitiesCommand.hpp"
 #include "CommandMap.hpp"
 #include "HelpCommand.hpp"
 #include "MessageCommand.hpp"
@@ -9,13 +10,14 @@
 #include "RawCommand.hpp"
 #include "TimeStampCommand.hpp"
 
-constexpr auto VERSION = "1.0.8";
+constexpr auto VERSION = "1.1.0";
 
 using namespace darauble;
 
 int main(int argc, char* argv[]) {
     std::cout << "Garmin FIT file editor/analyzer version " << VERSION << std::endl;
 
+    ActivitiesCommand activitiesCommand;
     HelpCommand helpCommand;
     MessageCommand messageCommand;
     ProductCommand productCommand;
@@ -26,6 +28,7 @@ int main(int argc, char* argv[]) {
         {
             "show", {
                 {"help", helpCommand},
+                {"activities", activitiesCommand},
                 {"message", messageCommand},
                 {"product", productCommand},
                 {"raw", rawCommand},
