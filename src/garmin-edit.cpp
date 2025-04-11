@@ -10,7 +10,7 @@
 #include "RawCommand.hpp"
 #include "TimeStampCommand.hpp"
 
-constexpr auto VERSION = "1.1.0";
+constexpr auto VERSION = "1.1.1";
 
 using namespace darauble;
 

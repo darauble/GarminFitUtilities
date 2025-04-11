@@ -163,6 +163,7 @@ const containers::BiMap<uint8_t, std::string> Sports::subNames = {
     { 117, "FLY_WX" },
     { 118, "FLY_VFR" },
     { 119, "FLY_IFR" },
+    { 124, "RUCKING" },
 };
 
 } // namespace darauble::metadata

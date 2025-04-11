@@ -55,7 +55,10 @@ void RawCommand::set(int argc, char* argv[]) {
             }
         }
 
-        if (strcmp(argv[3], "u16") == 0) {
+        if (strcmp(argv[3], "u8") == 0) {
+            uint8_t value = static_cast<uint16_t>(std::stoll(argv[5]));
+            mapper.write(offset, value);
+        } else if (strcmp(argv[3], "u16") == 0) {
             uint16_t value = static_cast<uint16_t>(std::stoll(argv[5]));
             mapper.write(offset, value, architecture);
         } else if (strcmp(argv[3], "u32") == 0) {

@@ -480,6 +480,10 @@ std::string BinaryMapper::readDuration(uint64_t &offset, uint8_t architecture, d
     return oss.str();
 }
 
+void BinaryMapper::write(uint64_t &offset, uint8_t value) {
+    binaryData[offset++] = value;
+}
+
 void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture) {
     if (architecture == 0) {
         binaryData[offset++] = value & 0xFF;
