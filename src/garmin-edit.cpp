@@ -4,13 +4,14 @@
 
 #include "ActivitiesCommand.hpp"
 #include "CommandMap.hpp"
+#include "GpxCommand.hpp"
 #include "HelpCommand.hpp"
 #include "MessageCommand.hpp"
 #include "ProductCommand.hpp"
 #include "RawCommand.hpp"
 #include "TimeStampCommand.hpp"
 
-constexpr auto VERSION = "1.1.1";
+constexpr auto VERSION = "1.2.1b";
 
 using namespace darauble;
 
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Garmin FIT file editor/analyzer version " << VERSION << std::endl;
 
     ActivitiesCommand activitiesCommand;
+    GpxCommand gpxCommand;
     HelpCommand helpCommand;
     MessageCommand messageCommand;
     ProductCommand productCommand;
@@ -29,6 +31,7 @@ int main(int argc, char* argv[]) {
             "show", {
                 {"help", helpCommand},
                 {"activities", activitiesCommand},
+                {"gpx", gpxCommand},
                 {"message", messageCommand},
                 {"product", productCommand},
                 {"raw", rawCommand},
@@ -43,6 +46,7 @@ int main(int argc, char* argv[]) {
         },
         {
             "replace", {
+                {"gpx", gpxCommand},
                 {"product", productCommand},
             }
         }

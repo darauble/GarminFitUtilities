@@ -15,6 +15,8 @@ option(OPT_BUILD_EDITOR "Build the file analysis and editing utility" ON)
 option(OPT_BUILD_RENAME_FILES "Build the file renaming utility" ON)
 option(OPT_BUILD_POINTS_VISITED "Check if the point was visited by activities tracks" ON)
 
+find_package(pugixml REQUIRED)
+
 get_filename_component(GARMIN_SDK_CPP "../${GARMIN_SDK_DIR_NAME}/cpp" ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB GARMIN_FIT_SOURCES "${GARMIN_SDK_CPP}/*.cpp")

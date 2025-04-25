@@ -494,6 +494,12 @@ void BinaryMapper::write(uint64_t &offset, uint16_t value, uint8_t architecture)
     }
 }
 
+void BinaryMapper::write(uint64_t &offset, int32_t value, uint8_t architecture) {
+    uint32_t uValue = 0;
+    memcpy(&uValue, &value, sizeof(uValue));
+    write(offset, uValue, architecture);
+}
+
 void BinaryMapper::write(uint64_t &offset, uint32_t value, uint8_t architecture) {
     if (architecture == 0) {
         binaryData[offset++] = value & 0xFF;

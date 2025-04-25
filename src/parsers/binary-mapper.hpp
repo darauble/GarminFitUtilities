@@ -112,6 +112,7 @@ public:
 
     void write(uint64_t &offset, uint8_t value);
     void write(uint64_t &offset, uint16_t value, uint8_t architecture);
+    void write(uint64_t &offset, int32_t value, uint8_t architecture);
     void write(uint64_t &offset, uint32_t value, uint8_t architecture);
     void write(uint64_t &offset, char* value, size_t length);
 

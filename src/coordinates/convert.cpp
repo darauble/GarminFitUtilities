@@ -12,6 +12,18 @@ double fromInt32(int32_t value) {
     return (double)value * semiCircleToDegrees;
 }
 
+double radiansFromInt32(int32_t value) {
+    return (double)value * semiCircleToRadians;
+}
+
+double radiansFromDegrees(double value) {
+    return value * degreesToRadians;
+}
+
+uint32_t int32FromRadians(double value) {
+    return (uint32_t)(radiansToSemicircles * value);
+}
+
 void calculate_square(const double lat, const double lon, const double distance_m, double &top_lat, double &left_lon, double &bottom_lat, double &right_lon) {
     double lat_rad = lat * (std::numbers::pi / 180.0);
 
