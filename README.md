@@ -291,6 +291,22 @@ Found 78 activities.
 
 With time I'll include more details here, similar to the `Activities > All Activities` in the Garmin Connect.
 
+### Replacing Coordinates from GPX
+
+If one want's to collect various events badges (e.g. Olathe Marathon), there are two ways:
+1. Run in place.
+2. Run anywhere the required distance and replace coordinates with the event's course.
+
+`garmin-edit replace gpx [session|advanced] <fit file> <gpx file> <new fit file>`
+
+And that's it. Nothing else will be replaced, not even the elevation data (however, I might add this feature later).
+
+`session` argument gives a possibility to update _only_ the session record, i.e. the "place" of the FIT file, but leave the original track. This _sometimes_ works on some events - apparently, depends on how Garmin checks the attendance.
+
+By default, coordinate points from GPX track are overwritten in the FIT file by approximate fitting, i.e. if a record in the FIT file has a shorter distance, than the next GPX point, the current GPX point is used.
+
+`advanced` argument makes it more realistic - it extrapolates intermediate points when GPX track has less points than the FIT file (but the same or greater distance). It calculates the bearing, the distance between the points and extrapolates them. If there are more points in the GPX file, extrapolation is used to get the corresponding distance. So this is more accurate and would reflect the time/distance relation when reviewing the activity in Connect or anywhere else.
+
 ### NOTES on Undocumented Messages
 
 There are quite many undocumented messages, that are not described in the FIT Profile. Strangely, message #104 is also not present, but it shows battery percentage decline during the workout in the field #2. Field #0 is the battery voltage (I think):
@@ -342,9 +358,11 @@ To replace names or some particular fields it is possible now to set uint16_t, u
 
 # Building
 
-I'm not going to release the binaries, so compile at your own leisure. There are no dependencies except for the [FIT SDK](https://developer.garmin.com/fit/download/). Download it and place at the same directory level, as this project, i.e. `GarminFitUtilities`
+I'm not going to release the binaries, so compile at your own leisure. There two dependencies:
+1. **[FIT SDK](https://developer.garmin.com/fit/download/)** - download it and place at the same directory level, as this project, i.e. `GarminFitUtilities`
+2. **Pugixml** - install `libpugixml-dev` on the Linux system with your favorite package manager.
 
-So the directory structure should be as follows (but adjust for the SDK version):
+The directory structure should be as follows (but adjust for the SDK version):
 
 ```
 .
@@ -359,8 +377,8 @@ If you don't require all three (currently) utilities, there are options in the t
 Then:
 * `cd GarminFitUtilities`
 * `mkdir build`
-* `cmake ..`
-* `make`
+* `cmake -B build`
+* `cmake --build build`
 
 *NOTE:* All C++ FIT SDK is compiled as a shared library. Resulting utilities will have it's path compiled in them (`set(CMAKE_SKIP_RPATH TRUE)` is commented out).
 
