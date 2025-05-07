@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(garmin-fit-utilities CXX)
 
-set(GARMIN_SDK_DIR_NAME "FitSDKRelease_21.158.00")
+set(GARMIN_SDK_DIR_NAME "FitSDKRelease_21.171.00")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

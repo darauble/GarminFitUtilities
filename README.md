@@ -366,7 +366,7 @@ The directory structure should be as follows (but adjust for the SDK version):
 
 ```
 .
-├── FitSDKRelease_21.158.00
+├── FitSDKRelease_21.171.00
 └── GarminFitUtilities
 ```
 
