@@ -92,6 +92,8 @@ FIT file internals are very well detailed by Garmin in their [FIT Protocol descr
 
 Product replacement was the first more serious project. It boosted the idea to create something of my own "SDK", have fun with classes and inheritance.
 
+A helper script is added, called `garmin-edit-completion.sh`. Source it to have `garmin-edit` subcommand completion in the shell.
+
 ### "SDK"
 
 `binary-mapper` is the utility, which reads the FIT file, creates two vectors of message definitions and messages themselves. Everything is based on the offset in the FIT file, i.e. "this field is at the byte no. XXX". It fills in the structure of definitions and actual messages and leaves them in the same order, as in the file. This is in contrary to C++ Garmin SDK, which is a streaming parser, similar to SAX (as opposed to DOM, which can be explored instead of run-through).
