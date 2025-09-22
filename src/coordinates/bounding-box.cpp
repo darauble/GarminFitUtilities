@@ -27,6 +27,7 @@ bool BoundingBox::intersect(const BoundingBox &other) {
 
 std::ostream& operator<< (std::ostream& out, const BoundingBox &b) {
     out << "{ " << b.top_lat << ", " << b.left_lon << ", "  << b.bottom_lat << ", " << b.right_lon << " }";
+    out << "{ " << fromInt32(b.top_lat) << ", " << fromInt32(b.left_lon) << ", "  << fromInt32(b.bottom_lat) << ", " << fromInt32(b.right_lon) << " }";
     return out;
 }
 

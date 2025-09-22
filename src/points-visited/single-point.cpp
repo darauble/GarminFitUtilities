@@ -37,10 +37,16 @@ uint32_t SinglePointHandler::search(std::vector<int32_t>& la, std::vector<int32_
     uint32_t found {0};
 
     for (size_t i {0}; i < lo.size() - 1; i++) {
+        if ((la.at(i) == FIT_SINT32_INVALID) || (lo.at(i) == FIT_SINT32_INVALID)
+            || (la.at(i + 1) == FIT_SINT32_INVALID) || (lo.at(i + 1) == FIT_SINT32_INVALID)) {
+            // std::cout << "One point is invalid, skipping." << std::endl;
+            continue;
+        }
+
         BoundingBox vector_box {la.at(i), lo.at(i), la.at(i + 1), lo.at(i + 1)};
 
         if (box.intersect(vector_box)) {
-            //std::cout << "Boxes at " << i << vector_box << " intersect!" << std::endl;
+            // std::cout << "Boxes at " << i << vector_box << " intersect!" << std::endl;
             found++;
         }
     }
