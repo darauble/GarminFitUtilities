@@ -10,7 +10,7 @@ This is a part of my wish to refresh Modern C++ knowledge, so again: not very we
 
 Utilities also print a lot of output. Simply because that helps me find some bugs and look for additional details if I care. Everything for my own fun.
 
-There are three utilities at the moment.
+There are three shell utilities and one GUI application uniting them at the moment.
 
 ## Points Visited
 
@@ -358,11 +358,57 @@ To replace names or some particular fields it is possible now to set uint16_t, u
 
 `sport` and `session` messages have names, that can be modified!
 
+## Garmin Disconnect
+
+Surely, world is GUIed for a long time now. Developing GUI applications was always a burden because of a complicated layouts, event management etc. Some GUI designing applications are there, but they also have their limitations. Thankfully, some Bigtechs developed powerful AI helpers that can be employed exactly for this purpose, i.e. generating UI code.
+
+Garmin Disconnect may replace some functionality of the Garmin Connect (hence the name), but fully locally working with FIT files. It won't ever be a very sophisticated package (like Golden Cheetah, for example), but it provides simple functions for local FIT file management.
+
+### Features
+
+**Activity Management:**
+- Browse FIT files by directory tree or time hierarchy (Year/Month/Day/Hour)
+- Activities panel with sortable columns: Date, Name, Sport, Duration, Distance, Pace/Speed, Heart Rate
+- **Metadata caching** - Fast loading via `.meta` sidecar files (100-1000x faster on subsequent scans)
+- **Edit activity names** with F2 key - names are preserved in cache
+- Drag & drop support for file operations - out of the application only
+- Context menu integration with file managers
+
+**Map Visualization:**
+- OpenStreetMap-based track rendering with Mapnik
+- Support for PBF and Spatialite map formats
+- Automatic PBF to Spatialite conversion (requires `gdal-bin`)
+- Zoom, pan, and track-fit controls
+- Custom map styling support
+
+**Product/Device Editing:**
+- Change device product ID in FIT files
+- Maintains file integrity with automatic CRC recalculation
+
+**Configuration:**
+- Settings stored in `~/.config/garmin-disconnect` (Linux) or registry (Windows)
+- Customizable data directory path via `data_directory` setting
+- Standard system locations: `/usr/share/garmin-disconnect/data` (Linux), `%PROGRAMDATA%\garmin-disconnect\data` (Windows)
+
+More functions will be added little by little.
+
 # Building
 
-I'm not going to release the binaries, so compile at your own leisure. There two dependencies:
-1. **[FIT SDK](https://developer.garmin.com/fit/download/)** - download it and place at the same directory level, as this project, i.e. `GarminFitUtilities`
-2. **Pugixml** - install `libpugixml-dev` on the Linux system with your favorite package manager.
+I'm not going to release the binaries, so compile at your own leisure.
+
+## Dependencies
+
+**Required:**
+1. **[FIT SDK](https://developer.garmin.com/fit/download/)** - download it and place at the same directory level as this project
+2. **Pugixml** - `libpugixml-dev` on Linux
+3. **wxWidgets** - `libwxgtk3.2-dev` on Linux (version 3.2+)
+4. **Mapnik** - `libmapnik-dev` on Linux (for map rendering in GUI)
+
+**Recommended:**
+5. **GDAL** - `gdal-bin` on Linux (provides `ogr2ogr` for PBF to Spatialite conversion)
+
+**Suggested:**
+6. **Osmium** - `osmium-tool` on Linux (for OSM data processing)
 
 The directory structure should be as follows (but adjust for the SDK version):
 
@@ -384,6 +430,9 @@ Then:
 
 *NOTE:* All C++ FIT SDK is compiled as a shared library. Resulting utilities will have it's path compiled in them (`set(CMAKE_SKIP_RPATH TRUE)` is commented out).
 
-Currently there's no `make install` target, but _maybe_ I'll add later.
+# Debian Package
+
+Above step may be skipped (except for the required dependencies) and `build-deb.sh` can be used to create a full Debian package for installation.
+
 
 Have fun!

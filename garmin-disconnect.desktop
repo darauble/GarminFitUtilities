@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Garmin Disconnect
+Comment=Comprehensive GUI application for managing Garmin FIT files
+GenericName=Garmin FIT File Manager
+Exec=build/garmin-disconnect
+Icon=src/gui/icon/garmin-disconnect.png
+Terminal=false
+StartupNotify=true
+Categories=Utility;Sports;
+Keywords=garmin;fit;sports;activities;gps;
+MimeType=application/octet-stream;
+StartupWMClass=garmin-disconnect

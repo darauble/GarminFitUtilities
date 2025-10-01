@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- OSM-style rendering for Spatialite/OGR data -->
+<Map background-color="rgb(242,239,233)" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+
+  <!-- Landuse styles -->
+  <Style name="landuse">
+    <Rule>
+      <Filter>[landuse] = 'forest' or [natural] = 'wood'</Filter>
+      <MaxScaleDenominator>350000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(157,202,138)" fill-opacity="0.8" />
+    </Rule>
+    <Rule>
+      <Filter>[landuse] = 'grass' or [landuse] = 'meadow' or [landuse] = 'village_green'</Filter>
+      <MaxScaleDenominator>200000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(205,235,176)" />
+    </Rule>
+    <Rule>
+      <Filter>[landuse] = 'residential' or [landuse] = 'living_street'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(225,225,225)" />
+    </Rule>
+    <Rule>
+      <Filter>[landuse] = 'industrial' or [landuse] = 'commercial' or [landuse] = 'retail'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(238,224,224)" />
+    </Rule>
+    <Rule>
+      <Filter>[leisure] = 'park' or [leisure] = 'garden' or [leisure] = 'playground'</Filter>
+      <MaxScaleDenominator>200000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(200,250,204)" />
+    </Rule>
+    <Rule>
+      <Filter>[leisure] = 'sports_centre' or [leisure] = 'stadium' or [leisure] = 'pitch'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(140,228,140)" />
+    </Rule>
+  </Style>
+
+  <!-- Water bodies -->
+  <Style name="water">
+    <Rule>
+      <Filter>[natural] = 'water' or [landuse] = 'reservoir' or [landuse] = 'basin'</Filter>
+      <PolygonSymbolizer fill="rgb(170,211,223)" />
+    </Rule>
+  </Style>
+
+  <!-- Roads by importance -->
+  <Style name="roads-casing">
+    <Rule>
+      <Filter>[highway] = 'motorway' or [highway] = 'motorway_link'</Filter>
+      <LineSymbolizer stroke="rgb(160,120,20)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'trunk' or [highway] = 'trunk_link'</Filter>
+      <LineSymbolizer stroke="rgb(200,130,40)" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'primary' or [highway] = 'primary_link'</Filter>
+      <MaxScaleDenominator>500000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(200,180,140)" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'secondary' or [highway] = 'secondary_link'</Filter>
+      <MaxScaleDenominator>200000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(200,200,180)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'tertiary' or [highway] = 'tertiary_link'</Filter>
+      <MaxScaleDenominator>100000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(180,180,180)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'residential' or [highway] = 'unclassified'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(200,200,200)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+  </Style>
+
+  <Style name="roads-fill">
+    <Rule>
+      <Filter>[highway] = 'motorway' or [highway] = 'motorway_link'</Filter>
+      <LineSymbolizer stroke="rgb(233,180,80)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'trunk' or [highway] = 'trunk_link'</Filter>
+      <LineSymbolizer stroke="rgb(255,198,112)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'primary' or [highway] = 'primary_link'</Filter>
+      <MaxScaleDenominator>500000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(252,214,164)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'secondary' or [highway] = 'secondary_link'</Filter>
+      <MaxScaleDenominator>200000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(247,250,191)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'tertiary' or [highway] = 'tertiary_link'</Filter>
+      <MaxScaleDenominator>100000</MaxScaleDenominator>
+      <LineSymbolizer stroke="white" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'residential' or [highway] = 'unclassified'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <LineSymbolizer stroke="white" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'service'</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <LineSymbolizer stroke="white" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'track'</Filter>
+      <MaxScaleDenominator>50000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(170,140,100)" stroke-width="1.5" stroke-dasharray="4,2"/>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'path' or [highway] = 'footway' or [highway] = 'cycleway' or [highway] = 'bridleway'</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(168,131,91)" stroke-width="1" stroke-dasharray="3,2"/>
+    </Rule>
+  </Style>
+
+  <!-- Waterways -->
+  <Style name="waterways">
+    <Rule>
+      <Filter>[waterway] = 'river'</Filter>
+      <LineSymbolizer stroke="rgb(170,211,223)" stroke-width="2"/>
+    </Rule>
+    <Rule>
+      <Filter>[waterway] = 'stream' or [waterway] = 'canal'</Filter>
+      <MaxScaleDenominator>100000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(170,211,223)" stroke-width="1"/>
+    </Rule>
+  </Style>
+
+  <!-- Railways -->
+  <Style name="railways">
+    <Rule>
+      <Filter>[railway] = 'rail'</Filter>
+      <MaxScaleDenominator>200000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(100,100,100)" stroke-width="1.5" stroke-dasharray="5,3"/>
+    </Rule>
+  </Style>
+
+  <!-- Buildings -->
+  <Style name="buildings">
+    <Rule>
+      <Filter>[building] != '' or [building] = 'yes'</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <PolygonSymbolizer fill="rgb(217,208,201)" />
+      <LineSymbolizer stroke="rgb(180,180,180)" stroke-width="0.3"/>
+    </Rule>
+  </Style>
+
+  <!-- POI Points (tourism, amenities) with labels -->
+  <Style name="pois">
+    <!-- Tourism attractions -->
+    <Rule>
+      <Filter>[tourism] != ''</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(153,102,153)" stroke="white" stroke-width="1.5" width="10" height="10" marker-type="ellipse"/>
+    </Rule>
+    <Rule>
+      <Filter>([tourism] != '') and [name] != ''</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="9" fill="rgb(100,50,100)" halo-fill="white" halo-radius="1" dy="8">[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[natural] = 'tree'</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(102,153,102)" stroke="white" stroke-width="1.5" width="10" height="10" marker-type="ellipse"/>
+    </Rule>
+    <Rule>
+      <Filter>[natural] = 'tree' and [name] != ''</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="9" fill="rgb(50,100,50)" halo-fill="white" halo-radius="1" dy="8">[name]</TextSymbolizer>
+    </Rule>
+
+    <!-- Restaurants, cafes, pubs -->
+    <Rule>
+      <Filter>[amenity] = 'restaurant' or [amenity] = 'cafe' or [amenity] = 'pub' or [amenity] = 'bar'</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(220,170,100)" stroke="white" stroke-width="1.5" width="9" height="9" marker-type="ellipse"/>
+    </Rule>
+    <Rule>
+      <Filter>([amenity] = 'restaurant' or [amenity] = 'cafe' or [amenity] = 'pub' or [amenity] = 'bar') and [name] != ''</Filter>
+      <MaxScaleDenominator>10000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="8" fill="rgb(100,80,50)" halo-fill="white" halo-radius="1" dy="7">[name]</TextSymbolizer>
+    </Rule>
+
+    <!-- Parking -->
+    <Rule>
+      <Filter>[amenity] = 'parking'</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(170,170,255)" stroke="white" stroke-width="1.5" width="8" height="8" marker-type="square"/>
+    </Rule>
+    <Rule>
+      <Filter>[amenity] = 'parking' and [name] != ''</Filter>
+      <MaxScaleDenominator>8000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="7" fill="rgb(80,80,150)" halo-fill="white" halo-radius="1" dy="6">P</TextSymbolizer>
+    </Rule>
+
+    <!-- Shops -->
+    <Rule>
+      <Filter>[shop] != ''</Filter>
+      <MaxScaleDenominator>10000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(200,100,150)" stroke="white" stroke-width="1.5" width="8" height="8" marker-type="ellipse"/>
+    </Rule>
+    <Rule>
+      <Filter>[shop] != '' and [name] != ''</Filter>
+      <MaxScaleDenominator>8000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="8" fill="rgb(120,50,100)" halo-fill="white" halo-radius="1" dy="7">[name]</TextSymbolizer>
+    </Rule>
+
+    <!-- Historic sites -->
+    <Rule>
+      <Filter>[historic] != ''</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <MarkersSymbolizer fill="rgb(150,100,80)" stroke="white" stroke-width="1.5" width="9" height="9" marker-type="ellipse"/>
+    </Rule>
+    <Rule>
+      <Filter>[historic] != '' and [name] != ''</Filter>
+      <MaxScaleDenominator>15000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Book" size="9" fill="rgb(100,60,40)" halo-fill="white" halo-radius="1" dy="8">[name]</TextSymbolizer>
+    </Rule>
+  </Style>
+
+  <!-- Hiking/Cycling Routes (from OSM relations) -->
+  <Style name="routes">
+    <!-- Hiking routes - orange, prominent -->
+    <Rule>
+      <Filter>[route] = 'hiking' or [route] = 'foot'</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(255,140,0)" stroke-width="4" stroke-opacity="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+    </Rule>
+    <!-- Bicycle routes - blue, dashed -->
+    <Rule>
+      <Filter>[route] = 'bicycle' or [route] = 'mtb'</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <LineSymbolizer stroke="rgb(100,149,237)" stroke-width="3" stroke-opacity="0.8" stroke-dasharray="8,4"/>
+    </Rule>
+    <!-- Route labels at closer zoom -->
+    <Rule>
+      <Filter>([route] = 'hiking' or [route] = 'foot' or [route] = 'bicycle' or [route] = 'mtb') and [name] != ''</Filter>
+      <MaxScaleDenominator>25000</MaxScaleDenominator>
+      <TextSymbolizer face-name="DejaVu Sans Bold" size="10" fill="rgb(255,140,0)" halo-fill="white" halo-radius="2" placement="line" spacing="400">[name]</TextSymbolizer>
+    </Rule>
+  </Style>
+
+  <!-- Layers ordered by rendering priority (bottom to top) -->
+
+  <!-- Landuse layer -->
+  <Layer name="landuse" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>landuse</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">multipolygons</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Water layer -->
+  <Layer name="water" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>water</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">multipolygons</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Waterways layer -->
+  <Layer name="waterways" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>waterways</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">lines</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Railways layer -->
+  <Layer name="railways" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>railways</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">lines</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Roads casing (dark outline) -->
+  <Layer name="roads-casing" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>roads-casing</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">lines</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Roads fill (colored center) -->
+  <Layer name="roads-fill" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>roads-fill</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">lines</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Routes layer (hiking/cycling paths with colors) -->
+  <Layer name="routes" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>routes</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">multilinestrings</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- Buildings layer -->
+  <Layer name="buildings" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>buildings</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">multipolygons</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- POI layer (on top of everything) -->
+  <Layer name="pois" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>pois</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">%SPATIALITE_FILE%</Parameter>
+      <Parameter name="layer">points</Parameter>
+    </Datasource>
+  </Layer>
+
+</Map>
