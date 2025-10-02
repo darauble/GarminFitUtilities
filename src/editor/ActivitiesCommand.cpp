@@ -21,7 +21,7 @@ namespace darauble {
 
         containers::Table table {{ActivityScanner::HEAD_FILE_NAME, ActivityScanner::HEAD_ACTIVITY_NAME, ActivityScanner::HEAD_SPORT}};
         ActivityHandler handler {table};
-        DirectoryScanner scanner {handler};
+        DirectoryScanner scanner {handler, { ".fit" }};
 
         scanner.scan(argv[3]);
 
