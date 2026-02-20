@@ -29,7 +29,7 @@ void ProductCommand::show(int argc, char* argv[]) {
 }
 
 void ProductCommand::replace(int argc, char* argv[]) {
-    if (argc == 4 && argv[3] == "help") {
+    if (argc == 4 && strcmp(argv[3], "help") == 0) {
         help(argc, argv);
         return;
     }

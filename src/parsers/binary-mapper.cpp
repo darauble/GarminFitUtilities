@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <cstring>
+#include <sstream>
 
 #include <fit_crc.hpp>
 
